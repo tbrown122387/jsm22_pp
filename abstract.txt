@@ -1,0 +1,1 @@
+The task of parameter estimation can difficult for time series models when their likelihoods are intractable and/or when the data set being used is large. For the Bayesian forecaster, this is the only the beginning of his problems. 
