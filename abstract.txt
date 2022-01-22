@@ -1,1 +1,11 @@
-The task of parameter estimation can difficult for time series models when their likelihoods are intractable and/or when the data set being used is large. For the Bayesian forecaster, this is the only the beginning of his problems. 
+Estimating the parameters of a time series model can be difficult with sampling-based approaches when the model's likelihood is intractable and/or when the data set being used is large. For the Bayesian forecaster, this is the only the beginning of his problems. Once samples from a parameter posterior are obtained on a fixed data window, how will they be used to generate forecasts, and how will these parameter samples be updated as new data arrive? This paper explores 
+
+
+- simple stochastic volatility model, 
+- parameter filter with covariates
+- pseudo-marginal MH for estimation, 
+- a variety of sampling-based algorithms to generate forecasts in real time, and 
+- a variety of scoring rules to compare these forecasts, and a 
+- variety of ways to evaluate the uncertainty attributed to yadayada
+
+The primary purpose of this paper is to rank forecasting algorithms, not to fit the posterior. 
