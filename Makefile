@@ -11,8 +11,12 @@ last_updated.txt: $(TS24)
 	@echo "\n##### updating last_updated.txt#####\n"
 	touch "$@"
 
-cpp/cpp_up_to_date.txt: SPY.csv SPY_returns.csv
-	./build_all_cpp.sh
+# TODO
+estimation/estimation_up_to_date.txt: SPY.csv SPY_returns.csv
+	./estimation/build_all_cpp.sh
+
+forecasting/forecasting_up_to_date.txt: SPY.csv SPY_returns.csv param_samples.csv 
+	./forecasting/build_all_cpp.sh
 
 .PHONY: run_shiny
 run_shiny: 
