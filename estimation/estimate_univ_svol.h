@@ -95,6 +95,7 @@ float_t svol_leverage_estimator<numparts,float_t>::log_prior_eval(const param::p
     float_t mu   = theta.get_untrans_params(1,1)(0);
     float_t sigmaSq = theta.get_untrans_params(2,2)(0);
     float_t rho   = theta.get_untrans_params(3,3)(0);
+    std::cout << phi << ", " << mu << ", " << sigmaSq << ", " << rho << "\n";
 
     // phi ~ uniform(0, .99)
     returnThis += rveval::evalUniform<float_t>(phi, 0, .99, true);
@@ -172,7 +173,7 @@ void do_ada_pmmh_svol_leverage(const std::string &datafile,
     // phi, mu, sigmaSq, rho
     std::vector<std::string> tts {"logit", "null", "log", "twice_fisher"}; 
     psv start_trans_theta;
-    start_trans_theta << rveval::logit<float_t>(.5), 0.0, std::log(2.0e-4), rveval::twiceFisher<float_t>(.5);
+    start_trans_theta << rveval::logit<float_t>(.5), 0.0, std::log(2.0e-4), rveval::twiceFisher<float_t>(-.5);
 
     
     // the chain's initial covariance matrix 

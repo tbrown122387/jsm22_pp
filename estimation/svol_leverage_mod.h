@@ -7,12 +7,12 @@
 #include <pf/bootstrap_filter_with_covariates.h> // the boostrap particle filter
 #include <pf/rv_samp.h> 			 // for sampling random numbers
 #include <pf/rv_eval.h> 			 // for evaluating densities and pmfs
+#include <pf/pf_base.h>                          // for GenFutureSimulator
 
 
 using namespace pf;
 using namespace pf::filters;
-using namespace pf::bases;
-
+using pf::bases::GenFutureSimulator;
 
 // questions:
 // 1. Does FutureSimulator need to be refactored for pfs with covariates?
