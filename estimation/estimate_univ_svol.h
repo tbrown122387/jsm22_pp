@@ -8,22 +8,28 @@
 #include <pf/rv_eval.h>
 #include <pf/resamplers.h>
 
-#include "univ_svol_bootstrap_filter.h"
+#include "svol_leverage_mod.h"
+
+
+#define DIMSTATE 1
+#define DIMOBS 1
+#define NUMPARAMS 4
 
 
 using namespace pf::resamplers;
 
 
-template<size_t numparams, size_t dimstate, size_t dimobs, size_t numparts, typename float_t>
-class univ_svol_estimator : public ada_pmmh_mvn<numparams,dimobs,numparts,float_t>
+
+template<size_t numparts, typename float_t>
+class svol_leverage_estimator : public ada_pmmh_mvn<NUMPARAMS,DIMOBS,numparts,float_t>
 {
 public:
 
-    using psv = Eigen::Matrix<float_t,numparams,1>;
-    using psm = Eigen::Matrix<float_t,numparams,numparams>;
-    using osv = Eigen::Matrix<float_t,dimobs,1>;
+    using psv = Eigen::Matrix<float_t,NUMPARAMS,1>;
+    using psm = Eigen::Matrix<float_t,NUMPARAMS,NUMPARAMS>;
+    using osv = Eigen::Matrix<float_t,DIMOBS,1>;
     
-    univ_svol_estimator(
+    svol_leverage_estimator(
             const psv &start_trans_theta,
             std::vector<std::string> tts,
             const unsigned int &num_mcmc_iters,
@@ -38,14 +44,15 @@ public:
             bool print_to_console,
             unsigned int print_every_k);
         
-    float_t log_prior_eval(const param::pack<float_t,3>& theta);
+    float_t log_prior_eval(const param::pack<float_t,NUMPARAMS>& theta);
 
-    float_t log_like_eval(const param::pack<float_t,3>& theta, const std::vector<osv> &data);
+    float_t log_like_eval(const param::pack<float_t,NUMPARAMS>& theta, const std::vector<osv> &data);
 
 };
 
-template<size_t numparams, size_t dimstate, size_t dimobs, size_t numparts, typename float_t>
-univ_svol_estimator<numparams,dimstate,dimobs,numparts,float_t>::univ_svol_estimator(
+
+template<size_t numparts, typename float_t>
+svol_leverage_estimator<numparts,float_t>::svol_leverage_estimator(
                                                     const psv &start_trans_theta,
                                                     std::vector<std::string> tts,
                                                     const unsigned int &num_mcmc_iters,
@@ -59,7 +66,7 @@ univ_svol_estimator<numparams,dimstate,dimobs,numparts,float_t>::univ_svol_estim
                                                     const psm &C0,
                                                     bool print_to_console,
                                                     unsigned int print_every_k) 
-    : ada_pmmh_mvn<numparams,dimobs,numparts,float_t>(start_trans_theta, 
+    : ada_pmmh_mvn<NUMPARAMS,DIMOBS,numparts,float_t>(start_trans_theta, 
                                                       tts, 
                                                       num_mcmc_iters, 
                                                       num_pfilters,
@@ -76,33 +83,38 @@ univ_svol_estimator<numparams,dimstate,dimobs,numparts,float_t>::univ_svol_estim
 }
 
 
-template<size_t numparams, size_t dimstate, size_t dimobs, size_t numparts, typename float_t>
-float_t univ_svol_estimator<numparams,dimstate,dimobs,numparts,float_t>::log_prior_eval(const param::pack<float_t,3>& theta)
+template<size_t numparts, typename float_t>
+float_t svol_leverage_estimator<numparts,float_t>::log_prior_eval(const param::pack<float_t,NUMPARAMS>& theta)
 {
     // value to be returned
     float_t returnThis(0.0);
    
-    // 1 beta, 1 phi, 1 ss
-    // unpack parameters
-    float_t beta = theta.get_untrans_params(0,0)(0);
-    float_t phi  = theta.get_untrans_params(1,1)(0);
-    float_t ss   = theta.get_untrans_params(2,2)(0);
-    
-    // beta ~ normal(1.0, 1.0)
-    returnThis += rveval::evalUnivNorm<float_t>(beta, 1.0, 1.0, true);
+    // phi, mu, sigmaSq, rho
+    // unpack parameters    
+    float_t phi  = theta.get_untrans_params(0,0)(0);
+    float_t mu   = theta.get_untrans_params(1,1)(0);
+    float_t sigmaSq = theta.get_untrans_params(2,2)(0);
+    float_t rho   = theta.get_untrans_params(3,3)(0);
 
-    // phi ~ Uniform(0,1)
-    returnThis += rveval::evalUniform<float_t>(phi, 0.0, 1.0, true);
+    // phi ~ uniform(0, .99)
+    returnThis += rveval::evalUniform<float_t>(phi, 0, .99, true);
+
+    // mu ~ Normal(0,1)
+    returnThis += rveval::evalUnivNorm<float_t>(mu, 0.0, 10.0, true);
 
     // ss ~ InverseGamma(.001, .001)
-    returnThis += rveval::evalUnivInvGamma<float_t>(ss, .001, .001, true);
+    returnThis += rveval::evalUnivInvGamma<float_t>(sigmaSq, .001, .001, true);
+
+    // rho ~ Uniform(-1, 0)
+    returnThis += rveval::evalUniform<float_t>(rho, -1.0, 0, true);
+
 
     return returnThis;    
 }
 
 
-template<size_t numparams, size_t dimstate, size_t dimobs, size_t numparts, typename float_t>
-float_t univ_svol_estimator<numparams,dimstate,dimobs,numparts,float_t>::log_like_eval(const param::pack<float_t,3>& theta, const std::vector<osv> &data)
+template<size_t numparts, typename float_t>
+float_t svol_leverage_estimator<numparts,float_t>::log_like_eval(const param::pack<float_t,NUMPARAMS>& theta, const std::vector<osv> &data)
 {
 
     // jump out if there's a problem with the data
@@ -112,13 +124,24 @@ float_t univ_svol_estimator<numparams,dimstate,dimobs,numparts,float_t>::log_lik
     // the value to be returned
     float_t logLike(0.0);
     
-    // instantiate model
-    svol_bs<numparts, dimstate, dimobs, mn_resampler<numparts,dimstate,float_t>,float_t> mod(theta);
+    // instantiate model (needs phi, mu, sigma, rho)
+    svol_leverage<numparts, mn_resampler<numparts,DIMSTATE,float_t>, float_t> 
+        mod(theta.get_untrans_params(0,0)(0), 
+            theta.get_untrans_params(1,1)(0),
+            std::sqrt(theta.get_untrans_params(2,2)(0)),
+            theta.get_untrans_params(3,3)(0));
     
     // iterate through data and calculate sum of log p(y_t | y_{1:t-1}) s
     unsigned int row (0);
     while(row < data.size()){
-        mod.filter(data[row]);  
+    
+    	if(row > 0){
+	        mod.filter(data[row], data[row-1]);      	
+    	}else{ 
+            // row == 0
+    		// covariates are just ignored, so we can plug in anything that's the right dimension
+            mod.filter(data[row], data[row]);      	
+    	}
         logLike += mod.getLogCondLike();
         row++;
     }
@@ -129,12 +152,12 @@ float_t univ_svol_estimator<numparams,dimstate,dimobs,numparts,float_t>::log_lik
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// do_ada_pmmh_msl1 ////////////////////////////////////////////////////
+//////////////////// do_ada_pmmh_svol_leverage ///////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
 
-template<size_t numparams, size_t dimstate, size_t dimobs, size_t numparts, typename float_t>
-void do_ada_pmmh_univ_svol(const std::string &datafile, 
+template<size_t numparts, typename float_t>
+void do_ada_pmmh_svol_leverage(const std::string &datafile, 
                            const std::string &samples_base_name, 
                            const std::string &messages_base_name, 
                            unsigned int num_mcmc_iters, 
@@ -143,19 +166,20 @@ void do_ada_pmmh_univ_svol(const std::string &datafile,
 {
 
     // the chain's starting parameters
-    using psv = Eigen::Matrix<float_t,numparams,1>;
-    using psm = Eigen::Matrix<float_t,numparams,numparams>;
+    using psv = Eigen::Matrix<float_t,NUMPARAMS,1>;
+    using psm = Eigen::Matrix<float_t,NUMPARAMS,NUMPARAMS>;
 
+    // phi, mu, sigmaSq, rho
+    std::vector<std::string> tts {"logit", "null", "log", "twice_fisher"}; 
     psv start_trans_theta;
-    start_trans_theta << 1.0, rveval::twiceFisher<float_t>(.5), std::log(2.0e-4);
+    start_trans_theta << rveval::logit<float_t>(.5), 0.0, std::log(2.0e-4), rveval::twiceFisher<float_t>(.5);
 
-    std::vector<std::string> tts {"null", "twice_fisher", "log"}; // betas phis sigma squareds 
     
     // the chain's initial covariance matrix 
     psm C0 = psm::Identity()*.15;
     unsigned int t0 = 150;  // start adapting the covariance at this iteration
     unsigned int t1 = 1000; // end adapting the covariance at this iteration
-    univ_svol_estimator<numparams,dimstate,dimobs,numparts,float_t> mcmcobj(
+    svol_leverage_estimator<numparts,float_t> mcmcobj(
                                                     	start_trans_theta,
                                                     	tts,
                                                     	num_mcmc_iters, 
@@ -168,7 +192,7 @@ void do_ada_pmmh_univ_svol(const std::string &datafile,
                                                     	t1,
                                                     	C0,
                                                     	false, // print console
-                                                        1);
+                                                      1);
     mcmcobj.commence_sampling();
 
 }

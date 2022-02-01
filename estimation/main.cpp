@@ -7,9 +7,6 @@
 
 
 #define NUMPARTS 500
-#define DIMOBS 1
-#define NUMPARAMS 3
-#define DIMSTATE 1
 #define FLOATTYPE float
 
 int main(int argc, char* argv[]){
@@ -33,7 +30,7 @@ int main(int argc, char* argv[]){
    std::string messages_base_name = argv[3];
    unsigned int num_mcmc_iters = atoi(argv[4]);
    unsigned int num_pfilters = atoi(argv[5]);
-   do_ada_pmmh_univ_svol<NUMPARAMS,DIMSTATE,DIMOBS,NUMPARTS,FLOATTYPE>(
+   do_ada_pmmh_svol_leverage<NUMPARTS,FLOATTYPE>(
 		   					                                 data_loc, 
                                                              samples_base_name, 
                                                              messages_base_name, 

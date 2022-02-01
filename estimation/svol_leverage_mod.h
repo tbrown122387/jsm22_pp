@@ -58,14 +58,14 @@ public:
 
 
 template<size_t nparts, typename resampT, typename float_t>
-svol_leverage<nparts, 1, 1, resampT, float_t>::svol_leverage(const float_t &phi, const float_t &mu, const float_t &sigma, const float_t &rho) 
-    : m_phi(phi), m_mu(beta), m_sigma(sigma), m_rho(rho)
+svol_leverage<nparts,resampT, float_t>::svol_leverage(const float_t &phi, const float_t &mu, const float_t &sigma, const float_t &rho) 
+    : m_phi(phi), m_mu(mu), m_sigma(sigma), m_rho(rho)
 {
 }
 
 
 template<size_t nparts, typename resampT, typename float_t>
-auto svol_leverage<nparts, 1, 1, resampT, float_t>::q1Samp(const osv &y1, const cvsv& z1) -> ssv
+auto svol_leverage<nparts, resampT, float_t>::q1Samp(const osv &y1, const cvsv& z1) -> ssv
 {
     ssv x1samp;
     x1samp(0) = m_stdNormSampler.sample() * m_sigma / std::sqrt(1.-m_phi*m_phi);
@@ -74,7 +74,7 @@ auto svol_leverage<nparts, 1, 1, resampT, float_t>::q1Samp(const osv &y1, const 
 
 
 template<size_t nparts, typename resampT, typename float_t>
-auto svol_leverage<nparts, 1, 1, resampT, float_t>::fSamp(const ssv &xtm1, const cvsv& zt) -> ssv
+auto svol_leverage<nparts, resampT, float_t>::fSamp(const ssv &xtm1, const cvsv& zt) -> ssv
 {
     // the covariate zt is ytm1 for this model
     ssv xtsamp;
@@ -85,7 +85,7 @@ auto svol_leverage<nparts, 1, 1, resampT, float_t>::fSamp(const ssv &xtm1, const
 
 
 template<size_t nparts, typename resampT, typename float_t>
-float_t svol_leverage<nparts, 1, 1, resampT, float_t>::logGEv(const osv &yt, const ssv &xt, const cvsv& zt)
+float_t svol_leverage<nparts, resampT, float_t>::logGEv(const osv &yt, const ssv &xt, const cvsv& zt)
 {
     return rveval::evalUnivNorm<float_t>(
                                     yt(0),
@@ -96,7 +96,7 @@ float_t svol_leverage<nparts, 1, 1, resampT, float_t>::logGEv(const osv &yt, con
 
 
 template<size_t nparts, typename resampT, typename float_t>
-auto svol_leverage<nparts, 1, 1, resampT, float_t>::gSamp(const ssv &xt) -> osv {
+auto svol_leverage<nparts, resampT, float_t>::gSamp(const ssv &xt) -> osv {
     osv yt;
     yt(0) = m_stdNormSampler.sample() * std::exp(.5*xt(0));
     return yt;
@@ -104,7 +104,7 @@ auto svol_leverage<nparts, 1, 1, resampT, float_t>::gSamp(const ssv &xt) -> osv 
 
 
 template<size_t nparts, typename resampT, typename float_t>
-float_t svol_leverage<nparts, 1, 1, resampT, float_t>::logMuEv(const ssv &x1, const cvsv& z1)
+float_t svol_leverage<nparts, resampT, float_t>::logMuEv(const ssv &x1, const cvsv& z1)
 {
     return rveval::evalUnivNorm<float_t>(
                                     x1(0),
@@ -115,23 +115,14 @@ float_t svol_leverage<nparts, 1, 1, resampT, float_t>::logMuEv(const ssv &x1, co
 
 
 template<size_t nparts, typename resampT, typename float_t>
-auto svol_leverage<nparts, 1, 1, resampT, float_t>::muSamp() -> ssv {
-
-    ssv x1; 
-    x1(0) = m_stdNormSampler.sample() * m_sigma/std::sqrt(1.0 - m_phi*m_phi);
-    return x1;
-}
-
-
-template<size_t nparts, typename resampT, typename float_t>
-float_t svol_leverage<nparts, 1, 1, resampT, float_t>::logQ1Ev(const ssv &x1samp, const osv &y1, const cvsv& z1)
+float_t svol_leverage<nparts, resampT, float_t>::logQ1Ev(const ssv &x1samp, const osv &y1, const cvsv& z1)
 {
     return rveval::evalUnivNorm<float_t>(x1samp(0), 0.0, m_sigma/std::sqrt(1.0 - m_phi*m_phi), true);
 }
 
 
 template<size_t nparts, typename resampT, typename float_t>    
-auto svol_leverage<nparts, 1, 1, resampT, float_t>::get_uwtd_samps() const -> std::array<ssv,nparts> 
+auto svol_leverage<nparts, resampT, float_t>::get_uwtd_samps() const -> std::array<ssv,nparts> 
 {
     return this->m_particles;
 }

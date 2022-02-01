@@ -1,0 +1,1 @@
+auxiliary/regular liu-west filter, the prop_mu function, it does depend on covariates. This could be a rason to not use the "alternate" version of the LW filter.
