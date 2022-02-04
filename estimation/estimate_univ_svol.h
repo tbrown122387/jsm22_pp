@@ -8,7 +8,7 @@
 #include <pf/rv_eval.h>
 #include <pf/resamplers.h>
 
-#include "svol_leverage_mod.h"
+#include "../shared_cpp/svol_leverage_mod.h"
 
 
 #define DIMSTATE 1
@@ -95,7 +95,6 @@ float_t svol_leverage_estimator<numparts,float_t>::log_prior_eval(const param::p
     float_t mu   = theta.get_untrans_params(1,1)(0);
     float_t sigmaSq = theta.get_untrans_params(2,2)(0);
     float_t rho   = theta.get_untrans_params(3,3)(0);
-    std::cout << phi << ", " << mu << ", " << sigmaSq << ", " << rho << "\n";
 
     // phi ~ uniform(0, .99)
     returnThis += rveval::evalUniform<float_t>(phi, 0, .99, true);
@@ -193,7 +192,7 @@ void do_ada_pmmh_svol_leverage(const std::string &datafile,
                                                     	t1,
                                                     	C0,
                                                     	false, // print console
-                                                      1);
+                                                        1); // print every
     mcmcobj.commence_sampling();
 
 }
