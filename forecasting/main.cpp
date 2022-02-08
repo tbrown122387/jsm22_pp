@@ -1,15 +1,16 @@
 #include <fstream> // for ifstream
 
 #include "data_reader.h"
-#include "svol_mods.h"
+#include "../shared_cpp/svol_leverage_mod.h"
+#include "forecasting_algos.h"
+
 
 // template parameters
 #define DIMSTATE 1 
 #define DIMOBS 1
-#define DIMPARAM 3
+#define DIMPARAM 4
 #define NUMXPARTS 100 
 #define NUMTHETAPARTS 100
-#define NUMFF 1
 
 
 

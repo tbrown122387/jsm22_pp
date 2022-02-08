@@ -8,7 +8,7 @@ data/param_samples.csv: data/SPY.csv data/SPY_returns.csv
 	@echo "\n##### running MCMC #############\n"
 	./estimation/build_and_run.sh
 
-#forecasting/forecasting_up_to_date.txt: SPY.csv SPY_returns.csv param_samples.csv 
+data/forecast_samps.csv: SPY.csv SPY_returns.csv param_samples.csv 
 #	./forecasting/build_all_cpp.sh
 
 # update data if it has been 24 hours
