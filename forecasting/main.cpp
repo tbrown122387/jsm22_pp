@@ -42,7 +42,6 @@ int main(int argc, char* argv[])
     using floatT  = double;
 //    using resampT = mn_resampler<NUMXPARTS,DIMSTATE,floatT>;
     //using SVOL1   = svol_sisr<NUMXPARTS, DIMSTATE, DIMOBS, resampT, floatT>;
-    using SVOL1   = svol_apf<NUMXPARTS, floatT>;
     using SVOL2   = svol_bs<NUMXPARTS, floatT>;
     using obs_sv  = Eigen::Matrix<floatT,DIMOBS,1>;
     using DynMat  = Eigen::Matrix<floatT,Eigen::Dynamic,Eigen::Dynamic>;
