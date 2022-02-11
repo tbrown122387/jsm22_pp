@@ -33,7 +33,7 @@ using namespace pf::resamplers;
  * parameter order: phi, mu, sigma, rho
  */
 template<size_t nparts, typename float_t>
-class svol_lw_1 : public LWFilterWithCovs<nparts, dimx, dimy, dimcov, dimparam, float_t>
+class svol_lw_1_par : public LWFilterWithCovs<nparts, dimx, dimy, dimcov, dimparam, float_t>
 {
 public:
 
@@ -55,7 +55,7 @@ private:
 
 public:
     // ctor
-    svol_lw_1(const float_t& delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u);
+    svol_lw_1_par(const float_t& delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u);
 
     // functions that we need to define
     float_t logMuEv (const ssv &x1, const psv& untrans_p1);
@@ -70,7 +70,7 @@ public:
 
 
 template<size_t nparts, typename float_t>
-svol_lw_1<nparts,float_t>::svol_lw_1(const float_t& delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u)
+svol_lw_1_par<nparts,float_t>::svol_lw_1_par(const float_t& delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u)
     : LWFilterWithCovs<nparts,dimx,dimy,dimcov,dimparam,float_t>(
     		std::vector<std::string>{"logit", "null", "log", "twice_fisher"}, // phi, mu, sigma, rho
             	delta)           // PRIORS
@@ -84,7 +84,7 @@ svol_lw_1<nparts,float_t>::svol_lw_1(const float_t& delta, float_t phi_l, float_
 
 
 template<size_t nparts, typename float_t>
-float_t svol_lw_1<nparts,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
+float_t svol_lw_1_par<nparts,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
 {
     // phi, mu, sigma, rho
     float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
@@ -93,7 +93,7 @@ float_t svol_lw_1<nparts,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
 
 
 template<size_t nparts, typename float_t>
-auto svol_lw_1<nparts,float_t>::propMu(const ssv &xtm1, const csv &cov_data, const psv& untrans_old_param) -> ssv
+auto svol_lw_1_par<nparts,float_t>::propMu(const ssv &xtm1, const csv &cov_data, const psv& untrans_old_param) -> ssv
 {
     // phi, mu, sigma, rho
     return untrans_old_param(1) + untrans_old_param(0)*(xtm1 - untrans_old_param(1)) + cov_data(0)*untrans_old_param(3)*untrans_old_param(2)*std::exp(-.5*xtm1); 
@@ -101,7 +101,7 @@ auto svol_lw_1<nparts,float_t>::propMu(const ssv &xtm1, const csv &cov_data, con
 
 
 template<size_t nparts, typename float_t>
-auto svol_lw_1<nparts,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
+auto svol_lw_1_par<nparts,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
 {
     // phi, mu, sigma, rho
     ssv x1samp;
@@ -111,7 +111,7 @@ auto svol_lw_1<nparts,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> 
 
 
 template<size_t nparts, typename float_t>
-auto svol_lw_1<nparts,float_t>::fSamp(const ssv &xtm1, const csv &zt, const psv& untrans_new_param) -> ssv
+auto svol_lw_1_par<nparts,float_t>::fSamp(const ssv &xtm1, const csv &zt, const psv& untrans_new_param) -> ssv
 {
     // phi, mu, sigma, rho
     ssv xt;
@@ -122,7 +122,7 @@ auto svol_lw_1<nparts,float_t>::fSamp(const ssv &xtm1, const csv &zt, const psv&
 
 
 template<size_t nparts, typename float_t>
-float_t svol_lw_1<nparts,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
+float_t svol_lw_1_par<nparts,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
 {
     // phi, mu, sigma, rho
     float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
@@ -131,14 +131,14 @@ float_t svol_lw_1<nparts,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const p
 
 
 template<size_t nparts, typename float_t>
-float_t svol_lw_1<nparts,float_t>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
+float_t svol_lw_1_par<nparts,float_t>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
 {
     return rveval::evalUnivNorm<float_t>(yt(0), 0.0, std::exp(.5*xt(0)), true);
 }
 
 
 template<size_t nparts, typename float_t>
-auto svol_lw_1<nparts,float_t>::paramPriorSamp() -> psv
+auto svol_lw_1_par<nparts,float_t>::paramPriorSamp() -> psv
 {
     // phi, mu, sigma, rho
     psv untrans_samp;
@@ -270,7 +270,7 @@ auto svol_lw_1_from_csv<nparts,float_t>::paramPriorSamp() -> psv
  * parameter order: phi, mu, sigma, rho
  */
 template<size_t nparts, typename float_t>
-class svol_lw_2 : public LWFilter2WithCovs<nparts, dimx, dimy, dimcov, dimparam, float_t>
+class svol_lw_2_par : public LWFilter2WithCovs<nparts, dimx, dimy, dimcov, dimparam, float_t>
 {
 public:
     using ssv = Eigen::Matrix<float_t, dimx, 1>;
@@ -291,7 +291,7 @@ private:
 
 public:
     // ctor
-    svol_lw_2(const float_t &delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u);
+    svol_lw_2_par(const float_t &delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u);
 
     // functions tha twe need to define
     float_t logMuEv (const ssv &x1, const psv& untrans_p1);
@@ -307,7 +307,7 @@ public:
 
 
 template<size_t nparts, typename float_t>
-svol_lw_2<nparts,float_t>::svol_lw_2(const float_t& delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u)
+svol_lw_2_par<nparts,float_t>::svol_lw_2_par(const float_t& delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u)
     : LWFilter2WithCovs<nparts,dimx,dimy,dimcov,dimparam,float_t>(
     				std::vector<std::string> {"logit", "null", "log", "twice_fisher"}, // phi, mu, sigma, rho
             			delta)           // PRIORS    // REMINDER: does output appear to be extremely sensitive to these?
@@ -321,7 +321,7 @@ svol_lw_2<nparts,float_t>::svol_lw_2(const float_t& delta, float_t phi_l, float_
 
 
 template<size_t nparts, typename float_t>
-float_t svol_lw_2<nparts,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
+float_t svol_lw_2_par<nparts,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
 {
     // phi, mu, sigma, rho
     float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
@@ -330,7 +330,7 @@ float_t svol_lw_2<nparts,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
 
 
 template<size_t nparts, typename float_t>
-auto svol_lw_2<nparts,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
+auto svol_lw_2_par<nparts,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
 {
     // phi, mu, sigma, rho
     ssv x1samp;
@@ -340,7 +340,7 @@ auto svol_lw_2<nparts,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> 
 
 
 template<size_t nparts, typename float_t>
-float_t svol_lw_2<nparts,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
+float_t svol_lw_2_par<nparts,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
 {
     // phi, mu, sigma, rho
     float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
@@ -349,14 +349,14 @@ float_t svol_lw_2<nparts,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const p
 
 
 template<size_t nparts, typename float_t>
-float_t svol_lw_2<nparts,float_t>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
+float_t svol_lw_2_par<nparts,float_t>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
 {
     return rveval::evalUnivNorm<float_t>(yt(0), 0.0, std::exp(.5*xt(0)), true);
 }
 
 
 template<size_t nparts, typename float_t>
-float_t svol_lw_2<nparts,float_t>::logFEv(const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt)
+float_t svol_lw_2_par<nparts,float_t>::logFEv(const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt)
 {
     // phi, mu, sigma, rho
     float_t mean = untrans_pt(1) + untrans_pt(0)*(xtm1(0) - untrans_pt(1)) + cov_data(0)*untrans_pt(3)*untrans_pt(2)*std::exp(-.5*xtm1(0));
@@ -366,7 +366,7 @@ float_t svol_lw_2<nparts,float_t>::logFEv(const ssv &xt, const ssv &xtm1, const 
 
 
 template<size_t nparts, typename float_t>
-auto svol_lw_2<nparts,float_t>::qSamp(const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) -> ssv
+auto svol_lw_2_par<nparts,float_t>::qSamp(const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) -> ssv
 {
     // phi, mu, sigma, rho
     ssv xt;
@@ -377,7 +377,7 @@ auto svol_lw_2<nparts,float_t>::qSamp(const ssv &xtm1, const osv &yt, const csv 
 
 
 template<size_t nparts, typename float_t>
-float_t svol_lw_2<nparts,float_t>::logQEv(const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt)
+float_t svol_lw_2_par<nparts,float_t>::logQEv(const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt)
 {
     // phi, mu, sigma, rho
     float_t mean = untrans_pt(1) + untrans_pt(0)*(xtm1(0) - untrans_pt(1)) + cov_data(0)*untrans_pt(3)*untrans_pt(2)*std::exp(-.5*xtm1(0));
@@ -387,7 +387,7 @@ float_t svol_lw_2<nparts,float_t>::logQEv(const ssv &xt, const ssv &xtm1, const 
 
 
 template<size_t nparts, typename float_t>
-auto svol_lw_2<nparts,float_t>::paramPriorSamp() -> psv
+auto svol_lw_2_par<nparts,float_t>::paramPriorSamp() -> psv
 {
     // phi, mu, sigma, rho
     psv untrans_samp;
