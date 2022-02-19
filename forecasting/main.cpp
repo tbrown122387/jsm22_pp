@@ -42,6 +42,9 @@
  * 19. Run standard auxiliary particle filter for state output (with given parameter estimates).
  * 20. Run standard auxiliary particle filter for conditional likelihoods (with given parameter estimates).
  * 21. Run standard auxiliary particle filter for simulating future observations (with given parameter estimates).
+
+ * Note: all models and variables are instantiated regardless of run_mode. This is done to ensure that 
+ * the difference in program run-time is only attributable to the run-time of algorithm.
 */
 int main(int argc, char* argv[])
 {
@@ -64,52 +67,69 @@ int main(int argc, char* argv[])
     // command line arguments //
     ////////////////////////////
     unsigned int run_mode;
-    std::string config_file, data_filename;
-    if( argc == 4 ){
+    std::string data_filename;
+    if( argc == 3 ){
 	run_mode = std::stoi(argv[1]);
-	config_file = argv[2];
-	data_filanem = argv[3];
+	data_filename = argv[2];
     }else{
         std::cout << "invalid command line arguments...need to pass in TODO\n";
         return 1;
     }
 
-    ///////////////////////
-    // parse config file //
-    /////////////////////// 
+    // get data
+    auto data = readInData<floatT>(data_filename, ',');
 
-    // all config files are comma separated
-    // option 1: (run modes 1-3,7-9) 
-    // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u); 
-    // option 2: (run modes )
-    // delta, param_filename
+    ///////////////////////////
+    // parse config files /////
+    // instantiate variables //
+    ///////////////////////////
 
-        date_filename = argv[1];
-        daysToExpiration = std::stoi(argv[2]);
-        run_mode = std::stoi(argv[3]);
-        delta = std::stod(argv[4]);
-	param_filename = argv[5];
-
-    std::string data_filename, param_filename;
-    unsigned int daysToExpiration;
-    unsigned int run_mode;
+    // temporary variables that are rewritten several times
     floatT delta;
+    floatT phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u;
+    floatT phi, phi, mu, mu, sig, sig, rho, rho;
+    std::string param_samples_filename;
+    unsigned dte;
+
+    // option 1: (for run modes 1-3,7-9) 
+    // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u 
+    ConfigType1<floatT> cfg1("configs/config1.csv");
+    cfg1.set_config_params(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte);
+    svol_lw_1_par<NUMXPARTS,floatT> lw1p(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); //run mode 1-3
+    svol_lw_2_par<NUMXPARTS,floatT> lw2p(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); //run mode 7-9
+
+    // option 2: (for run modes 4-6, 10-12)
+    // delta, param_samples_filename
+    ConfigType2<floatT> cfg2("configs/config2.csv");
+    cfg.set_config_params(delta, param_samples_filename, dte);
+    svol_lw_1_csv<NUMXPARTS,floatT> lw1c(delta, param_samples_filename, dte); //run mode 4-6
+    svol_lw_2_csv<NUMXPARTS,floatT> lw2c(delta, param_samples_filename, dte); //run mode 10-12
+
+    // option 3: (for run modes 13-15)
+    // phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte 
+    ConfigType3<floatT> cfg3("configs/config3.csv");
+    cfg3.set_config_params(phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte);
+    svol_swarm_1<NUMXPARTS,NUMTHETAPARTS,floatT> swarm_par(phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); // run mode 13-15
+
+    // option 4: (for run modes 16-18)
+    // param_samples_filename, dte
+    ConfigType4<floatT> cfg4("configs/config4.csv");
+    cfg4.set_config_params(param_samples_filename, dte);
+    svol_swarm_2<NUMXPARTS,NUMTHETAPARTS,floatT> swarm_csv(param_samples_filename, dte); // run mode 16-18
+
+    // option 5: (for run modes 19-21)
+    // phi, mu, sigma, rho, dte
+    ConfigType5<floatT> cfg5("configs/config5.csv");
+    cfg5.set_config_params(phi, mu, sigma, rho, dte);
+    svol_leverage<NUMXPARTS,resampT,floatT> single_pf(phi, mu, sigma, rho, dte); // run mode 19-21
+
+
 
     ////////////////////
     // do actual work //
     ////////////////////
 
-    // get data
-    auto data = readInData<floatT>(filename, ',');
 
-    // initialize all models
-    svol_lw_1_par<NUMXPARTS,floatT> lw1p(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u); //run mode 1-3
-    svol_lw_1_csv<NUMXPARTS,floatT> lw1c(delta, param_filename); //run mode 4-6
-    svol_lw_2_par<NUMXPARTS,floatT> lw2p(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u); //run mode 7-9
-    svol_lw_2_csv<NUMXPARTS,floatT> lw2c(delta, param_filename); //run mode 10-12
-    svol_swarm_1<NUMXPARTS,NUMTHETAPARTS,floatT> swarm_par(phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u); // run mode 13-15
-    svol_swarm_2<NUMXPARTS,NUMTHETAPARTS,floatT> swarm_csv(param_filename); // run mode 16-18
-    svol_leverage<NUMXPARTS,resampT,floatT> single_pf(phi, mu, sigma, rho); // run mode 19-21
 
 //    // make a function for both the swarm and the liu-west filter
 //    auto my_lambda3 = [](const ssv& xt, const psv& pt) -> const DynMat {
