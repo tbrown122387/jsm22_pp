@@ -1,0 +1,3 @@
+/home/taylor/CLionProjects/jsmpp_v2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/taylor/CLionProjects/jsmpp_v2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/taylor/CLionProjects/jsmpp_v2/cmake-build-debug/CMakeFiles/jsmpp_v2.dir
