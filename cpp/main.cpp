@@ -79,26 +79,6 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    ////////////////////////
-    // perform estimation //
-    ////////////////////////
-    if( run_mode = 22){
-
-        // get arguments and call function
-        ConfigType6<floatT> cfg("configs/config6.csv");
-        unsigned int num_mcmc_iters, num_pfilters;
-        cfg.set_config_params(num_mcmc_iters, num_pfilters);
-        do_ada_pmmh_svol_leverage<NUMPARTS,FLOATTYPE>(
-                data_filename,
-                "samples",
-                "messages",
-                num_mcmc_iters,
-                num_pfilters,
-                false); // use multicore?
-
-
-        return 0;
-    }
 
 
     ///////////////////////////////////
@@ -157,6 +137,43 @@ int main(int argc, char* argv[]){
     ConfigType5<floatT> cfg5("configs/config5.csv");
     cfg5.set_config_params(phi, mu, sig, rho, dte);
     svol_leverage<NUMXPARTS,resampT,floatT> single_pf(phi, mu, sig, rho, dte); // run mode 19-21
+
+    std::vector<int> liu_west_filter_run_modes  = {1,2,3,4,5,6,7,8,9,10,11,12};
+    std::vector<int> swarm_run_modes  = {13,14,15,16,17,18};
+    std::vector<int> single_pf_run_modes = {19,20,21};
+    std::vector<int> estimation_run_mode = {22};
+    bool is_liu_west_filter = std::find(liu_west_filter_run_modes.begin(), liu_west_filter_run_modes.end(), run_mode) != liu_west_filter_run_modes.end();
+    bool is_swarm_filter = std::find(swarm_run_modes.begin(), swarm_run_modes.end(), run_mode) != swarm_run_modes.end();
+    bool is_single_pfilter = std::find(single_pf_run_modes.begin(), single_pf_run_modes.end(), run_mode) != single_pf_run_modes.end();
+    bool is_estimation = std::find(estimation_run_mode.begin(), estimation_run_mode.end(), run_mode) != estimation_run_mode.end();
+    if( is_liu_west_filter ){
+	std::cout << "filtering through data with liu west filter\n";
+
+	for( const auto &yt : data ){
+		std::cout << yt << "\n";
+	}
+
+
+    }else if( is_swarm_filter ){
+	std::cout << "swarm\n";
+    }else if( is_single_pfilter ){
+	std::cout << "single\n";
+    }else if( is_estimation ){
+
+	std::cout << "estimating with particle Metropolis-Hastings\n";
+
+	// get arguments and call function
+        ConfigType6<floatT> cfg("configs/config6.csv");
+        unsigned int num_mcmc_iters, num_pfilters;
+        cfg.set_config_params(num_mcmc_iters, num_pfilters);
+        do_ada_pmmh_svol_leverage<NUMPARTS,FLOATTYPE>(
+                data_filename,
+                "samples",
+                "messages",
+                num_mcmc_iters,
+                num_pfilters,
+                false); // use multicore?
+    }
 
 
     return 0;

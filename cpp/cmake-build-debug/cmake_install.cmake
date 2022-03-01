@@ -1,4 +1,4 @@
-# Install script for directory: /home/taylor/CLionProjects/jsmpp_v2
+# Install script for directory: /home/trb5me_admin/jsm22_pp/cpp
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/taylor/CLionProjects/jsmpp_v2/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/trb5me_admin/jsm22_pp/cpp/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
