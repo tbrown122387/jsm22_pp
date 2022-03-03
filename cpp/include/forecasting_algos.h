@@ -66,6 +66,12 @@ public:
     float_t logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
     psv paramPriorSamp() override;
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
+
+    // these probably need to be refactored so that the class just asks for the number of time steps as a cl arg
+    std::vector<std::array<osv,nparts>> sim_future(const osv &yt){
+        return this->sim_future_obs(m_dte, yt);
+    }
+    sim_future_obs
 };
 
 

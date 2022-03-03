@@ -1,4 +1,6 @@
 #include <string>   // std::string
+#include <stdexcept>
+
 #include "estimate_univ_svol.h"
 #include "data_reader.h"
 #include "config_file_readers.h"
@@ -79,14 +81,11 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-
-
-    ///////////////////////////////////
-    // perform real-time forecasting //
-    // parse config files            //
-    // instantiate variables         //
-    // get returns data              //
-    ///////////////////////////////////
+    ////////////////////////////
+    // instantiate everything //
+    // parse config files     //
+    // get returns data       //
+    ////////////////////////////
 
     // get data
     auto data = readInData<floatT>(data_filename, ',');
@@ -146,23 +145,158 @@ int main(int argc, char* argv[]){
     bool is_swarm_filter = std::find(swarm_run_modes.begin(), swarm_run_modes.end(), run_mode) != swarm_run_modes.end();
     bool is_single_pfilter = std::find(single_pf_run_modes.begin(), single_pf_run_modes.end(), run_mode) != single_pf_run_modes.end();
     bool is_estimation = std::find(estimation_run_mode.begin(), estimation_run_mode.end(), run_mode) != estimation_run_mode.end();
-    if( is_liu_west_filter ){
-	std::cout << "filtering through data with liu west filter\n";
 
-	for( const auto &yt : data ){
-		std::cout << yt << "\n";
-	}
+    /////////////////////////////////
+    // filter through returns data //
+    // use appropriate algorithm   //
+    // which depends on run_mode   //
+    /////////////////////////////////
+    if( run_mode == 1 ){
+        // * 1. Run the Liu-West1 (original auxiliary style) filter for state output (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw1p.filter(data[i], data[i-1], fs);
+            std::cout << lw1p.getExpectations()[0](0,0) << "\n";
+        }
+    }else if( run_mode == 2){
+        // * 2. Run the Liu-West1 (original auxiliary style) filter for conditional likelihoods (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw1p.filter(data[i], data[i-1], fs);
+            std::cout << lw1p.getLogCondLike() << "\n";
+        }
+    }else if( run_mode == 3){
+        //  * 3. Run the Liu-West1 (original auxiliary style) filter for simulating future observations (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw1p.filter(data[i], data[i-1], fs);
+            // TODO
+        }
+    }else if( run_mode == 4){
+        //  * 4. Run the Liu-West1 (original auxiliary style) filter for state output (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw1c.filter(data[i], data[i-1], fs);
+            std::cout << lw1c.getExpectations()[0](0,0) << "\n";
+        }
+    }else if( run_mode == 5){
+        //  * 5. Run the Liu-West1 (original auxiliary style) filter for conditional likelihoods (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw1c.filter(data[i], data[i-1], fs);
+            std::cout << lw1c.getLogCondLike() << "\n";
+        }
+    }else if(run_mode == 6){
+        //  * 6. Run the Liu-West1 (original auxiliary style) filter for simulating future observations (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw1c.filter(data[i], data[i-1], fs);
+            // TODO std::cout << lw1c.sim_fu
+        }
+    }else if( run_mode == 7){
+        //  * 7. Run the Liu-West2 filter for state output (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw2p.filter(data[i], data[i-1], fs);
+            std::cout << lw2p.getExpectations()[0](0,0) << "\n";
+        }
+    }else if( run_mode == 8){
+        //  * 8. Run the Liu-West2 filter for conditional likelihoods (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw2p.filter(data[i], data[i-1], fs);
+            std::cout << lw2p.getLogCondLike() << "\n";
+        }
+    }else if( run_mode == 9){
+        //  * 9. Run the Liu-West2 filter for simulating future observations (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw2p.filter(data[i], data[i-1], fs);
+            // TODO
+        }
+    }else if( run_mode == 10){
+        //  * 10. Run the Liu-West2 filter for state output (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw2c.filter(data[i], data[i-1], fs);
+            std::cout << lw2c.getExpectations()[0](0,0) << "\n";
+        }
+    }else if( run_mode == 11){
+        //  * 11. Run the Liu-West2 filter for conditional likelihoods (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw2c.filter(data[i], data[i-1], fs);
+            std::cout << lw2c.getLogCondLike() << "\n";
+        }
+    }else if( run_mode == 12){
+        //  * 12. Run the Liu-West2 filter for simulating future observations (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            lw2c.filter(data[i], data[i-1], fs);
+            //TODO
+        }
+    }else if( run_mode == 13){
+        //  * 13. Run the Particle Swarm (bootstrap filters) algorithm for state output (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            swarm_par.update(data[i], data[i-1]);
+            std::cout << swarm_par.getExpectations()[0](0,0) << "\n";
+        }
+    }else if( run_mode == 14){
+        //  * 14. Run the Particle Swarm (bootstrap filters) algorithm for conditional likelihoods (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            swarm_par.update(data[i], data[i-1]);
+            std::cout << swarm_par.getExpectations()[0](0,0) << "\n";
+        }
+    }else if( run_mode == 15){
+        //  * 15. Run the Particle Swarm (bootstrap filters) algorithm for simulating future observations (sampling parameters from prior)
+        for( unsigned i = 1; i < data.size(); ++i){
+            swarm_par.update(data[i], data[i-1]);
+            std::cout << swarm_par.getLogCondLike() << "\n";
+        }
+    }else if( run_mode == 16){
+        //  * 16. Run the Particle Swarm (bootstrap filters) algorithm for state output (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            swarm_csv.update(data[i], data[i-1]);
+            std::cout << swarm_csv.getExpectations()[0](0,0) << "\n";
+        }
+    }else if( run_mode == 17){
+        //  * 17. Run the Particle Swarm (bootstrap filters) algorithm for conditional likelihoods (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            swarm_csv.update(data[i], data[i-1]);
+            std::cout << swarm_csv.getLogCondLike() << "\n";
+        }
+    }else if( run_mode == 18){
+        //  * 18. Run the Particle Swarm (bootstrap filters) algorithm for simulating future observations (sampling parameters from csv)
+        for( unsigned i = 1; i < data.size(); ++i){
+            swarm_csv.update(data[i], data[i-1]);
+            // TODO
+        }
+    }else if( run_mode == 19){
+        //  * 19. Run standard auxiliary particle filter for state output (with given parameter estimates).
+        std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
+        pf_fs.push_back(
+                [](const ssv& xt, const csv& zt)-> DynMat{
+                    return xt;
+                }
+        );
+        for( unsigned i = 1; i < data.size(); ++i ) {
+            single_pf.filter(data[i], data[i-1], pf_fs);
+            std::cout << single_pf.getExpectations()[0](0,0) << "\n";
+        }
+    }else if( run_mode == 20){
+        //  * 20. Run standard auxiliary particle filter for conditional likelihoods (with given parameter estimates).
+        std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
+        pf_fs.push_back(
+                [](const ssv& xt, const csv& zt)-> DynMat{
+                    return xt;
+                }
+        );
+        for( unsigned i = 1; i < data.size(); ++i ) {
+            single_pf.filter(data[i], data[i-1], pf_fs);
+        }
+    }else if( run_mode == 21){
+        //  * 21. Run standard auxiliary particle filter for simulating future observations (with given parameter estimates).
+        std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
+        pf_fs.push_back(
+                [](const ssv& xt, const csv& zt)-> DynMat{
+                    return xt;
+                }
+        );
+        for( unsigned i = 1; i < data.size(); ++i ) {
+            single_pf.filter(data[i], data[i-1], pf_fs);
+        }
+    }else if( run_mode == 22){
+        //  * 22. Run Pseudo-Marginal Metropolis-Hastings to estimate the parameters of the model on a historical stretch of data.
 
-
-    }else if( is_swarm_filter ){
-	std::cout << "swarm\n";
-    }else if( is_single_pfilter ){
-	std::cout << "single\n";
-    }else if( is_estimation ){
-
-	std::cout << "estimating with particle Metropolis-Hastings\n";
-
-	// get arguments and call function
+        // get arguments and call function
         ConfigType6<floatT> cfg("configs/config6.csv");
         unsigned int num_mcmc_iters, num_pfilters;
         cfg.set_config_params(num_mcmc_iters, num_pfilters);
@@ -174,6 +308,13 @@ int main(int argc, char* argv[]){
                 num_pfilters,
                 false); // use multicore?
     }
+
+
+
+
+
+
+
 
 
     return 0;
