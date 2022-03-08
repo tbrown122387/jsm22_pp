@@ -68,10 +68,10 @@ public:
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
 
     // these probably need to be refactored so that the class just asks for the number of time steps as a cl arg
-    std::vector<std::array<osv,nparts>> sim_future(const osv &yt){
+    std::vector<std::array<osv,NUMPARTS>> sim_future(const osv &yt){
         return this->sim_future_obs(m_dte, yt);
     }
-    sim_future_obs
+
 };
 
 
@@ -211,6 +211,11 @@ public:
     psv paramPriorSamp() override;
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
 
+    // these probably need to be refactored so that the class just asks for the number of time steps as a cl arg
+    std::vector<std::array<osv,NUMPARTS>> sim_future(const osv &yt){
+        return this->sim_future_obs(m_dte, yt);
+    }
+
 };
 
 
@@ -342,6 +347,12 @@ public:
     float_t logQEv (const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) override;
     psv paramPriorSamp() override;
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
+
+    // these probably need to be refactored so that the class just asks for the number of time steps as a cl arg
+    std::vector<std::array<osv,NUMPARTS>> sim_future(const osv &yt){
+        return this->sim_future_obs(m_dte, yt);
+    }
+
 
 };
 
@@ -490,6 +501,12 @@ public:
     float_t logQEv (const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) override;
     psv paramPriorSamp() override;
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
+
+    // these probably need to be refactored so that the class just asks for the number of time steps as a cl arg
+    std::vector<std::array<osv,NUMPARTS>> sim_future(const osv &yt){
+        return this->sim_future_obs(m_dte, yt);
+    }
+
 };
 
 template<size_t NUMPARTS, typename float_t>

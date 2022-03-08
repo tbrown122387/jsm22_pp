@@ -1,22 +1,17 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /home/trb5me_admin/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp
+Change Dir: /home/taylor/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make -f Makefile cmTC_5fd6b/fast && /usr/bin/make  -f CMakeFiles/cmTC_5fd6b.dir/build.make CMakeFiles/cmTC_5fd6b.dir/build
-make[1]: Entering directory '/home/trb5me_admin/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_5fd6b.dir/src.c.o
-/usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_5fd6b.dir/src.c.o -c /home/trb5me_admin/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_5fd6b
-/home/trb5me_admin/Downloads/clion-2021.3.3/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5fd6b.dir/link.txt --verbose=1
-/usr/bin/cc CMakeFiles/cmTC_5fd6b.dir/src.c.o -o cmTC_5fd6b 
-/home/linuxbrew/.linuxbrew/bin/ld: CMakeFiles/cmTC_5fd6b.dir/src.c.o: in function `main':
+Run Build Command(s):/home/taylor/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/213.6777.58/bin/ninja/linux/ninja cmTC_3d74e && [1/2] Building C object CMakeFiles/cmTC_3d74e.dir/src.c.o
+[2/2] Linking C executable cmTC_3d74e
+FAILED: cmTC_3d74e 
+: && /usr/bin/cc   CMakeFiles/cmTC_3d74e.dir/src.c.o -o cmTC_3d74e   && :
+/usr/bin/ld: CMakeFiles/cmTC_3d74e.dir/src.c.o: in function `main':
 src.c:(.text+0x46): undefined reference to `pthread_create'
-/home/linuxbrew/.linuxbrew/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
-/home/linuxbrew/.linuxbrew/bin/ld: src.c:(.text+0x5e): undefined reference to `pthread_cancel'
-/home/linuxbrew/.linuxbrew/bin/ld: src.c:(.text+0x6f): undefined reference to `pthread_join'
+/usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x5e): undefined reference to `pthread_cancel'
+/usr/bin/ld: src.c:(.text+0x6f): undefined reference to `pthread_join'
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_5fd6b.dir/build.make:99: cmTC_5fd6b] Error 1
-make[1]: Leaving directory '/home/trb5me_admin/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp'
-make: *** [Makefile:127: cmTC_5fd6b/fast] Error 2
+ninja: build stopped: subcommand failed.
 
 
 Source file was:
@@ -41,20 +36,15 @@ int main(void)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/trb5me_admin/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp
+Change Dir: /home/taylor/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make -f Makefile cmTC_60c88/fast && /usr/bin/make  -f CMakeFiles/cmTC_60c88.dir/build.make CMakeFiles/cmTC_60c88.dir/build
-make[1]: Entering directory '/home/trb5me_admin/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_60c88.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_60c88.dir/CheckFunctionExists.c.o -c /home/trb5me_admin/Downloads/clion-2021.3.3/bin/cmake/linux/share/cmake-3.21/Modules/CheckFunctionExists.c
-Linking C executable cmTC_60c88
-/home/trb5me_admin/Downloads/clion-2021.3.3/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_60c88.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create CMakeFiles/cmTC_60c88.dir/CheckFunctionExists.c.o -o cmTC_60c88  -lpthreads 
-/home/linuxbrew/.linuxbrew/bin/ld: cannot find -lpthreads
+Run Build Command(s):/home/taylor/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/213.6777.58/bin/ninja/linux/ninja cmTC_3d20f && [1/2] Building C object CMakeFiles/cmTC_3d20f.dir/CheckFunctionExists.c.o
+[2/2] Linking C executable cmTC_3d20f
+FAILED: cmTC_3d20f 
+: && /usr/bin/cc -DCHECK_FUNCTION_EXISTS=pthread_create  CMakeFiles/cmTC_3d20f.dir/CheckFunctionExists.c.o -o cmTC_3d20f  -lpthreads && :
+/usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_60c88.dir/build.make:99: cmTC_60c88] Error 1
-make[1]: Leaving directory '/home/trb5me_admin/jsm22_pp/cpp/cmake-build-release/CMakeFiles/CMakeTmp'
-make: *** [Makefile:127: cmTC_60c88/fast] Error 2
+ninja: build stopped: subcommand failed.
 
 
 

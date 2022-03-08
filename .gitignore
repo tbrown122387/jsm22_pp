@@ -4,3 +4,4 @@ estimation/samps_*
 estimation/messages_*
 data/samps_*
 data/messages_*
+data/cond_likes/*

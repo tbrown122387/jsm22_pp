@@ -1,4 +1,4 @@
-/home/trb5me_admin/Downloads/clion-2021.3.3/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" /home/trb5me_admin/jsm22_pp/cpp
+/home/taylor/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/213.6777.58/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/home/taylor/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/213.6777.58/bin/ninja/linux/ninja -G Ninja /home/taylor/jsm22_pp/cpp
 -- The C compiler identification is GNU 9.3.0
 -- The CXX compiler identification is GNU 9.3.0
 -- Detecting C compiler ABI info
@@ -22,4 +22,4 @@
 -- Found Threads: TRUE  
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/trb5me_admin/jsm22_pp/cpp/cmake-build-release
+-- Build files have been written to: /home/taylor/jsm22_pp/cpp/cmake-build-release

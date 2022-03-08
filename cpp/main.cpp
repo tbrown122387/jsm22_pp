@@ -88,6 +88,7 @@ int main(int argc, char* argv[]){
     ////////////////////////////
 
     // get data
+    std::cout << "attempting to read in " << data_filename << "\n";
     auto data = readInData<floatT>(data_filename, ',');
 
     // define filtering function that will be used for all algorithms
