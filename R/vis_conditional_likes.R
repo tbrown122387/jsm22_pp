@@ -12,16 +12,8 @@
 
 # have to change directory because some filepaths are hardcoded relative style
 setwd("~/jsm22_pp/")
-source("R/create_configs.R")
-
-prog <- "./cpp/cmake-build-release/jsmpp_v2"
-runModes <- c(2,5,8,11,14,17,20)
-dataPath <- "./data/SPY_returns.csv"
 outFiles <- c("lw_aux_prior.txt", "lw_aux_csv.txt", "lw2_prior.txt","lw2_csv.txt", "swarm_prior.txt", "swarm_csv.txt", "pf_est.txt")
 outFiles <- paste("data/cond_likes/",outFiles, sep ="")
+allOutput <- lapply(outFiles, read.csv, header=F)
 
-for(idx in seq_along(runModes)){
-  cmd <- paste(prog, runModes[idx], dataPath, '>', outFiles[idx])
-  cat(idx, ": ", cmd, "\n")
-  system(cmd)
-}
+plot.ts(allOutput[[1]])

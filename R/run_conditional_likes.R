@@ -11,11 +11,12 @@
 
 
 # have to change directory because some filepaths are hardcoded relative style
+setwd("~/jsm22_pp/")
 source("R/create_configs.R")
 setwd("~/jsm22_pp/")
 
-prog <- "./cpp/cmake-build-debug/jsmpp_v2"
-runModes <- c(2,5,8,11,14,17,20)
+prog <- "./cpp/cmake-build-release/jsmpp_v2"
+runModes <- c(2,5,8,11,14,17,20) # see above
 dataPath <- "./data/SPY_returns.csv"
 outFiles <- c("lw_aux_prior.txt", "lw_aux_csv.txt", "lw2_prior.txt",
               "lw2_csv.txt", "swarm_prior.txt", "swarm_csv.txt", "pf_est.txt")

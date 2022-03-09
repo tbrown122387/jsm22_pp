@@ -30,7 +30,7 @@ write.table(myStr, "../configs/config1.csv", append = F, quote = F, col.names = 
 
 # config 2
 # delta, param_samples_filename, dte
-myStr <- paste(delta, paramSamplesFile, dte, sep = ", ")
+myStr <- paste(delta, paramSamplesFile, dte, sep = ",")
 write.table(myStr, "../configs/config2.csv", append = F, quote = F, col.names = F, row.names = F)
 
 # config 3
@@ -40,7 +40,7 @@ write.table(myStr, "../configs/config3.csv", append = F, quote = F, col.names = 
 
 # config 4
 # param_samples_filename, dte
-myStr <- paste(paramSamplesFile, dte, sep = ", ")
+myStr <- paste(paramSamplesFile, dte, sep = ",")
 write.table(myStr, "../configs/config4.csv", append = F, quote = F, col.names = F, row.names = F)
 
 # config 5

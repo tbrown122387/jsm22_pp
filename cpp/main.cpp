@@ -1,5 +1,4 @@
 #include <string>   // std::string
-#include <stdexcept>
 
 #include "estimate_univ_svol.h"
 #include "data_reader.h"
@@ -59,7 +58,7 @@ int main(int argc, char* argv[]){
     ///////////////////////
     using floatT  = double;
     using DynMat  = Eigen::Matrix<floatT,Eigen::Dynamic,Eigen::Dynamic>;
-    using osv     = Eigen::Matrix<floatT,DIMOBS,1>;
+    using osv [[maybe_unused]] = Eigen::Matrix<floatT,DIMOBS,1>;
     using csv     = Eigen::Matrix<floatT,DIMCOV,1>;
     using ssv     = Eigen::Matrix<floatT,DIMSTATE,1>;
     using psv     = Eigen::Matrix<floatT,DIMPARAM,1>;
@@ -88,13 +87,11 @@ int main(int argc, char* argv[]){
     ////////////////////////////
 
     // get data
-    std::cout << "attempting to read in " << data_filename << "\n";
     auto data = readInData<floatT>(data_filename, ',');
 
     // define filtering function that will be used for all algorithms
     std::vector<func> fs;
-    fs.push_back(
-            [](const ssv& xt, const csv& zt, const psv& pt)-> DynMat{
+    fs.emplace_back([](const ssv& xt, const csv& zt, const psv& pt)-> DynMat{
                 return xt;
             }
     );
@@ -137,15 +134,6 @@ int main(int argc, char* argv[]){
     ConfigType5<floatT> cfg5("configs/config5.csv");
     cfg5.set_config_params(phi, mu, sig, rho, dte);
     svol_leverage<NUMXPARTS,resampT,floatT> single_pf(phi, mu, sig, rho, dte); // run mode 19-21
-
-    std::vector<int> liu_west_filter_run_modes  = {1,2,3,4,5,6,7,8,9,10,11,12};
-    std::vector<int> swarm_run_modes  = {13,14,15,16,17,18};
-    std::vector<int> single_pf_run_modes = {19,20,21};
-    std::vector<int> estimation_run_mode = {22};
-    bool is_liu_west_filter = std::find(liu_west_filter_run_modes.begin(), liu_west_filter_run_modes.end(), run_mode) != liu_west_filter_run_modes.end();
-    bool is_swarm_filter = std::find(swarm_run_modes.begin(), swarm_run_modes.end(), run_mode) != swarm_run_modes.end();
-    bool is_single_pfilter = std::find(single_pf_run_modes.begin(), single_pf_run_modes.end(), run_mode) != single_pf_run_modes.end();
-    bool is_estimation = std::find(estimation_run_mode.begin(), estimation_run_mode.end(), run_mode) != estimation_run_mode.end();
 
     /////////////////////////////////
     // filter through returns data //
@@ -263,8 +251,7 @@ int main(int argc, char* argv[]){
     }else if( run_mode == 19){
         //  * 19. Run standard auxiliary particle filter for state output (with given parameter estimates).
         std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
-        pf_fs.push_back(
-                [](const ssv& xt, const csv& zt)-> DynMat{
+        pf_fs.emplace_back([](const ssv& xt, const csv& zt)-> DynMat{
                     return xt;
                 }
         );
@@ -275,19 +262,18 @@ int main(int argc, char* argv[]){
     }else if( run_mode == 20){
         //  * 20. Run standard auxiliary particle filter for conditional likelihoods (with given parameter estimates).
         std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
-        pf_fs.push_back(
-                [](const ssv& xt, const csv& zt)-> DynMat{
+        pf_fs.emplace_back([](const ssv& xt, const csv& zt)-> DynMat{
                     return xt;
                 }
         );
         for( unsigned i = 1; i < data.size(); ++i ) {
             single_pf.filter(data[i], data[i-1], pf_fs);
+            std::cout << single_pf.getLogCondLike() << "\n";
         }
     }else if( run_mode == 21){
         //  * 21. Run standard auxiliary particle filter for simulating future observations (with given parameter estimates).
         std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
-        pf_fs.push_back(
-                [](const ssv& xt, const csv& zt)-> DynMat{
+        pf_fs.emplace_back([](const ssv& xt, const csv& zt)-> DynMat{
                     return xt;
                 }
         );
