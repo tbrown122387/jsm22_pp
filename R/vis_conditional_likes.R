@@ -8,12 +8,22 @@
 # * 17. Run the Particle Swarm (bootstrap filters) algorithm for conditional likelihoods (sampling parameters from csv)
 # * 20. Run standard auxiliary particle filter for conditional likelihoods (with given parameter estimates).
 # */
-
+library(ggplot2)
+library(reshape2)
 
 # have to change directory because some filepaths are hardcoded relative style
 setwd("~/jsm22_pp/")
-outFiles <- c("lw_aux_prior.txt", "lw_aux_csv.txt", "lw2_prior.txt","lw2_csv.txt", "swarm_prior.txt", "swarm_csv.txt", "pf_est.txt")
+cNames <- c("lw_aux_prior", "lw_aux_csv", "lw2_prior","lw2_csv", "swarm_prior", "swarm_csv", "pf_est")
+outFiles <- paste0(cNames, ".txt")
 outFiles <- paste("data/cond_likes/",outFiles, sep ="")
-allOutput <- lapply(outFiles, read.csv, header=F)
+allOutput <- as.data.frame(lapply(outFiles, read.csv, header=F))
+colnames(allOutput) <- cNames
+allOutput$time <- seq_along(allOutput[,1])
+allOutput <- allOutput[51:100,]
 
-plot.ts(allOutput[[1]])
+mdf <- melt(allOutput, id.vars = "time")
+ggplot(mdf,                            # Draw ggplot2 time series plot
+       aes(x = time,
+           y = value,
+           col = variable)) +
+  geom_line()

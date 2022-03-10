@@ -212,13 +212,13 @@ int main(int argc, char* argv[]){
         //  * 14. Run the Particle Swarm (bootstrap filters) algorithm for conditional likelihoods (sampling parameters from prior)
         for( unsigned i = 1; i < data.size(); ++i){
             swarm_par.update(data[i], data[i-1]);
-            std::cout << swarm_par.getExpectations()[0](0,0) << "\n";
+            std::cout << swarm_par.getLogCondLike() << "\n";
         }
     }else if( run_mode == 15){
         //  * 15. Run the Particle Swarm (bootstrap filters) algorithm for simulating future observations (sampling parameters from prior)
         for( unsigned i = 1; i < data.size(); ++i){
             swarm_par.update(data[i], data[i-1]);
-            std::cout << swarm_par.getLogCondLike() << "\n";
+            //TODO std::cout << swarm_par.getLogCondLike() << "\n";
         }
     }else if( run_mode == 16){
         //  * 16. Run the Particle Swarm (bootstrap filters) algorithm for state output (sampling parameters from csv)
