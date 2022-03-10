@@ -1,3 +1,0 @@
-/home/taylor/jsm22_pp/cpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/taylor/jsm22_pp/cpp/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/taylor/jsm22_pp/cpp/cmake-build-debug/CMakeFiles/jsmpp_v2.dir

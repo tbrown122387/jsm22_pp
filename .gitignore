@@ -1,7 +1,5 @@
-forecasting/build/
-estimation/build/
-estimation/samps_*
-estimation/messages_*
 data/samps_*
 data/messages_*
 data/cond_likes/*
+cpp/cmake-build-debug/*
+cpp/cmake-build-release/*

@@ -7,12 +7,7 @@
 
 
 // template parameters
-#define NUMPARTS 500
-#define FLOATTYPE double
-#define DIMSTATE 1
-#define DIMOBS 1
-#define DIMCOV 1
-#define DIMPARAM 4
+#define NUMBOTHPARTS 500
 #define NUMXPARTS 100
 #define NUMTHETAPARTS 100
 
@@ -56,14 +51,9 @@ int main(int argc, char* argv[]){
     ///////////////////////
     // some type aliases //
     ///////////////////////
-    using floatT  = double;
-    using DynMat  = Eigen::Matrix<floatT,Eigen::Dynamic,Eigen::Dynamic>;
-    using osv [[maybe_unused]] = Eigen::Matrix<floatT,DIMOBS,1>;
-    using csv     = Eigen::Matrix<floatT,DIMCOV,1>;
-    using ssv     = Eigen::Matrix<floatT,DIMSTATE,1>;
-    using psv     = Eigen::Matrix<floatT,DIMPARAM,1>;
+    using DynMat  = Eigen::Matrix<FLOATTYPE,Eigen::Dynamic,Eigen::Dynamic>;
     using func   = std::function<const DynMat(const ssv&, const csv&, const psv&)>;
-    using resampT = mn_resamp_fast1<NUMXPARTS,DIMSTATE,floatT>;
+    using resampT = mn_resamp_fast1<NUMXPARTS,DIMSTATE,FLOATTYPE>;
 
     ///////////////////////////////////////
     // command line arguments            //
@@ -87,7 +77,7 @@ int main(int argc, char* argv[]){
     ////////////////////////////
 
     // get data
-    auto data = readInData<floatT>(data_filename, ',');
+    auto data = readInData<FLOATTYPE>(data_filename, ',');
 
     // define filtering function that will be used for all algorithms
     std::vector<func> fs;
@@ -97,43 +87,43 @@ int main(int argc, char* argv[]){
     );
 
     // temporary variables that are rewritten several times
-    floatT delta;
-    floatT phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u;
-    floatT phi, mu, sig, rho;
+    FLOATTYPE delta;
+    FLOATTYPE phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u;
+    FLOATTYPE phi, mu, sig, rho;
     std::string param_samples_filename;
     unsigned dte;
 
     // option 1: (for run modes 1-3,7-9)
     // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u
-    ConfigType1<floatT> cfg1("configs/config1.csv");
+    ConfigType1<FLOATTYPE> cfg1("configs/config1.csv");
     cfg1.set_config_params(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte);
-    svol_lw_1_par<NUMXPARTS,floatT> lw1p(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); //run mode 1-3
-    svol_lw_2_par<NUMXPARTS,floatT> lw2p(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); //run mode 7-9
+    svol_lw_1_par<NUMBOTHPARTS> lw1p(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); //run mode 1-3
+    svol_lw_2_par<NUMBOTHPARTS> lw2p(delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); //run mode 7-9
 
     // option 2: (for run modes 4-6, 10-12)
     // delta, param_samples_filename
-    ConfigType2<floatT> cfg2("configs/config2.csv");
+    ConfigType2<FLOATTYPE> cfg2("configs/config2.csv");
     cfg2.set_config_params(delta, param_samples_filename, dte);
-    svol_lw_1_from_csv<NUMXPARTS,floatT> lw1c(delta, param_samples_filename, dte); //run mode 4-6
-    svol_lw_2_from_csv<NUMXPARTS,floatT> lw2c(delta, param_samples_filename, dte); //run mode 10-12
+    svol_lw_1_from_csv<NUMBOTHPARTS> lw1c(delta, param_samples_filename, dte); //run mode 4-6
+    svol_lw_2_from_csv<NUMBOTHPARTS> lw2c(delta, param_samples_filename, dte); //run mode 10-12
 
     // option 3: (for run modes 13-15)
     // phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte
-    ConfigType3<floatT> cfg3("configs/config3.csv");
+    ConfigType3<FLOATTYPE> cfg3("configs/config3.csv");
     cfg3.set_config_params(phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte);
-    svol_swarm_1<NUMXPARTS,NUMTHETAPARTS,floatT> swarm_par(fs, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); // run mode 13-15
+    svol_swarm_1<NUMXPARTS,NUMTHETAPARTS> swarm_par(fs, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte); // run mode 13-15
 
     // option 4: (for run modes 16-18)
     // param_samples_filename, dte
-    ConfigType4<floatT> cfg4("configs/config4.csv");
+    ConfigType4<FLOATTYPE> cfg4("configs/config4.csv");
     cfg4.set_config_params(param_samples_filename, dte);
-    svol_swarm_2<NUMXPARTS,NUMTHETAPARTS,floatT> swarm_csv(param_samples_filename, fs, dte); // run mode 16-18
+    svol_swarm_2<NUMXPARTS,NUMTHETAPARTS> swarm_csv(param_samples_filename, fs, dte); // run mode 16-18
 
     // option 5: (for run modes 19-21)
     // phi, mu, sigma, rho, dte
-    ConfigType5<floatT> cfg5("configs/config5.csv");
+    ConfigType5<FLOATTYPE> cfg5("configs/config5.csv");
     cfg5.set_config_params(phi, mu, sig, rho, dte);
-    svol_leverage<NUMXPARTS,resampT,floatT> single_pf(phi, mu, sig, rho, dte); // run mode 19-21
+    svol_leverage<NUMXPARTS,resampT> single_pf(phi, mu, sig, rho, dte); // run mode 19-21
 
     /////////////////////////////////
     // filter through returns data //
@@ -284,10 +274,10 @@ int main(int argc, char* argv[]){
         //  * 22. Run Pseudo-Marginal Metropolis-Hastings to estimate the parameters of the model on a historical stretch of data.
 
         // get arguments and call function
-        ConfigType6<floatT> cfg("configs/config6.csv");
+        ConfigType6<FLOATTYPE> cfg("configs/config6.csv");
         unsigned int num_mcmc_iters, num_pfilters;
         cfg.set_config_params(num_mcmc_iters, num_pfilters);
-        do_ada_pmmh_svol_leverage<NUMPARTS,FLOATTYPE>(
+        do_ada_pmmh_svol_leverage<NUMXPARTS>(
                 data_filename,
                 "samples",
                 "messages",

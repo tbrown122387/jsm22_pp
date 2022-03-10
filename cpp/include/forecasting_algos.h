@@ -10,15 +10,13 @@
 #include <ssme/pswarm_filter.h>
 #include "svol_leverage_mod.h"
 
-#define DIMX 1
-#define DIMY 1
-#define DIMPARAM 4
-#define DIMCOV 1
+// define directives are included from svol_leverage_mod.h!
 
 using namespace pf::filters;
 using namespace pf;
 using namespace pf::bases;
 using namespace pf::resamplers;
+
 
 
 /**
@@ -27,43 +25,36 @@ using namespace pf::resamplers;
 * unformly from samples that have been saved to a file)
 * parameter order: phi, mu, sigma, rho
 */
-template<size_t NUMPARTS, typename float_t>
+template<size_t NUMPARTS>
 class svol_lw_1_par
-        : public LWFilterWithCovsFutureSimulator<NUMPARTS, DIMX, DIMY, DIMCOV, DIMPARAM, float_t>
+        : public LWFilterWithCovsFutureSimulator<NUMPARTS, DIMSTATE, DIMOBS, DIMCOV, DIMPARAM, FLOATTYPE>
 {
-public:
-
-    using ssv = Eigen::Matrix<float_t, DIMX, 1>;
-    using osv = Eigen::Matrix<float_t, DIMY, 1>;
-    using csv = Eigen::Matrix<float_t, DIMCOV,1>;
-    using psv = Eigen::Matrix<float_t, DIMPARAM,1>;
-
 private:
 
     // used for sampling states
-    rvsamp::UnivNormSampler<float_t> m_stdNormSampler;
+    rvsamp::UnivNormSampler<FLOATTYPE> m_stdNormSampler;
 
     // for sampling from the parameter prior
-    rvsamp::UniformSampler<float_t> m_phi_sampler;
-    rvsamp::UniformSampler<float_t> m_mu_sampler;
-    rvsamp::UniformSampler<float_t> m_sigma_sampler;
-    rvsamp::UniformSampler<float_t> m_rho_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_phi_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_mu_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_sigma_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_rho_sampler;
 
     // how many days to expiration (aka how many days into the future you are simulating)
     unsigned int m_dte;
 
 public:
     // ctor
-    svol_lw_1_par(float_t delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l,
-                  float_t sig_u, float_t rho_l, float_t rho_u, unsigned dte);
+    svol_lw_1_par(FLOATTYPE delta, FLOATTYPE phi_l, FLOATTYPE phi_u, FLOATTYPE mu_l, FLOATTYPE mu_u, FLOATTYPE sig_l,
+                  FLOATTYPE sig_u, FLOATTYPE rho_l, FLOATTYPE rho_u, unsigned dte);
 
     // pure virtual functions that we need to define
-    float_t logMuEv (const ssv &x1, const psv& untrans_p1) override;
+    FLOATTYPE logMuEv (const ssv &x1, const psv& untrans_p1) override;
     ssv propMu  (const ssv &xtm1, const csv &cov_data, const psv& untrans_old_param) override;
     ssv q1Samp (const osv &y1, const psv& untrans_p1) override;
     ssv fSamp (const ssv &xtm1, const csv &zt, const psv& untrans_new_param) override;
-    float_t logQ1Ev (const ssv &x1, const osv &y1, const psv& untrans_p1) override;
-    float_t logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
+    FLOATTYPE logQ1Ev (const ssv &x1, const osv &y1, const psv& untrans_p1) override;
+    FLOATTYPE logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
     psv paramPriorSamp() override;
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
 
@@ -75,9 +66,9 @@ public:
 };
 
 
-template<size_t NUMPARTS, typename float_t>
-svol_lw_1_par<NUMPARTS,float_t>::svol_lw_1_par(float_t delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u, unsigned dte)
-        : LWFilterWithCovsFutureSimulator<NUMPARTS,DIMX,DIMY,DIMCOV,DIMPARAM,float_t>(
+template<size_t NUMPARTS>
+svol_lw_1_par<NUMPARTS>::svol_lw_1_par(FLOATTYPE delta, FLOATTYPE phi_l, FLOATTYPE phi_u, FLOATTYPE mu_l, FLOATTYPE mu_u, FLOATTYPE sig_l, FLOATTYPE sig_u, FLOATTYPE rho_l, FLOATTYPE rho_u, unsigned dte)
+        : LWFilterWithCovsFutureSimulator<NUMPARTS,DIMSTATE,DIMOBS,DIMCOV,DIMPARAM,FLOATTYPE>(
         std::vector<std::string>{"logit", "null", "log", "twice_fisher"}, // phi, mu, sigma, rho
         delta)           // PRIORS
         // REMINDER: does output appear to be extremely sensitive to these?
@@ -90,65 +81,51 @@ svol_lw_1_par<NUMPARTS,float_t>::svol_lw_1_par(float_t delta, float_t phi_l, flo
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_1_par<NUMPARTS,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_1_par<NUMPARTS>::logMuEv(const ssv &x1, const psv& untrans_p1)
+{
+    return sl::logMuEv(x1, untrans_p1);
+}
+
+
+template<size_t NUMPARTS>
+auto svol_lw_1_par<NUMPARTS>::propMu(const ssv &xtm1, const csv &cov_data, const psv& untrans_old_param) -> ssv
+{
+    return sl::propMu(xtm1, cov_data, untrans_old_param);
+}
+
+
+template<size_t NUMPARTS>
+auto svol_lw_1_par<NUMPARTS>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
+{
+    return sl::muSamp(untrans_p1, m_stdNormSampler.sample());
+}
+
+
+template<size_t NUMPARTS>
+auto svol_lw_1_par<NUMPARTS>::fSamp(const ssv &xtm1, const csv &zt, const psv& untrans_new_param) -> ssv
+{
+    return sl::fSamp(xtm1, zt, untrans_new_param, m_stdNormSampler.sample());
+}
+
+
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_1_par<NUMPARTS>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
 {
     // phi, mu, sigma, rho
-    float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return rveval::evalUnivNorm<float_t>(x1(0), 0.0, sd, true);
+    return sl::logMuEv(x1, untrans_p1);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_par<NUMPARTS,float_t>::propMu(const ssv &xtm1, const csv &cov_data, const psv& untrans_old_param) -> ssv
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_1_par<NUMPARTS>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
 {
-    // phi, mu, sigma, rho
-    ssv xt;
-    xt(0) = untrans_old_param(1) + untrans_old_param(0)*(xtm1(0) - untrans_old_param(1));
-    xt(0) += cov_data(0)*untrans_old_param(3)*untrans_old_param(2)*std::exp(-.5*xtm1(0));
-    return xt;
+    return sl::logGEv(yt, xt);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_par<NUMPARTS,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
-{
-    // phi, mu, sigma, rho
-    ssv x1samp;
-    x1samp(0) = m_stdNormSampler.sample() * untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return x1samp;
-}
-
-
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_par<NUMPARTS,float_t>::fSamp(const ssv &xtm1, const csv &zt, const psv& untrans_new_param) -> ssv
-{
-    // phi, mu, sigma, rho
-    ssv xt;
-    xt(0) = untrans_new_param(1) + untrans_new_param(0)*(xtm1(0) - untrans_new_param(1)) + zt(0)*untrans_new_param(3)*untrans_new_param(2)*std::exp(-.5*xtm1(0));
-    xt(0) += m_stdNormSampler.sample() * untrans_new_param(2) * std::sqrt( 1.0 - untrans_new_param(3) * untrans_new_param(3));
-    return xt;
-}
-
-
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_1_par<NUMPARTS,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
-{
-    // phi, mu, sigma, rho
-    float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return rveval::evalUnivNorm<float_t>(x1(0), 0.0, sd, true);
-}
-
-
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_1_par<NUMPARTS,float_t>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
-{
-    return rveval::evalUnivNorm<float_t>(yt(0), 0.0, std::exp(.5*xt(0)), true);
-}
-
-
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_par<NUMPARTS,float_t>::paramPriorSamp() -> psv
+template<size_t NUMPARTS>
+auto svol_lw_1_par<NUMPARTS>::paramPriorSamp() -> psv
 {
     // phi, mu, sigma, rho
     psv untrans_samp;
@@ -159,12 +136,11 @@ auto svol_lw_1_par<NUMPARTS,float_t>::paramPriorSamp() -> psv
     return untrans_samp;
 }
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_par<NUMPARTS,float_t>::gSamp(const ssv &xt, const psv &untrans_pt) -> osv
+
+template<size_t NUMPARTS>
+auto svol_lw_1_par<NUMPARTS>::gSamp(const ssv &xt, const psv &untrans_pt) -> osv
 {
-    osv ytsamp;
-    ytsamp(0) = m_stdNormSampler.sample() * std::exp(.5*xt(0));
-    return ytsamp;
+    return sl::gSamp(xt, m_stdNormSampler.sample());
 }
 
 
@@ -174,24 +150,17 @@ auto svol_lw_1_par<NUMPARTS,float_t>::gSamp(const ssv &xt, const psv &untrans_pt
  * unformly from samples that have been saved to a file)
  * parameter order: phi, mu, sigma, rho
  */
-template<size_t NUMPARTS, typename float_t>
+template<size_t NUMPARTS>
 class svol_lw_1_from_csv
-        : public LWFilterWithCovsFutureSimulator<NUMPARTS, DIMX, DIMY, DIMCOV, DIMPARAM, float_t>
+        : public LWFilterWithCovsFutureSimulator<NUMPARTS, DIMSTATE, DIMOBS, DIMCOV, DIMPARAM, FLOATTYPE>
 {
-public:
-
-    using ssv = Eigen::Matrix<float_t, DIMX, 1>;
-    using osv = Eigen::Matrix<float_t, DIMY, 1>;
-    using csv = Eigen::Matrix<float_t, DIMCOV,1>;
-    using psv = Eigen::Matrix<float_t, DIMPARAM,1>;
-
 private:
 
     // used for sampling states
-    rvsamp::UnivNormSampler<float_t> m_stdNormSampler;  
+    rvsamp::UnivNormSampler<FLOATTYPE> m_stdNormSampler;  
 
     // for sampling from mcmc samples
-    utils::csv_param_sampler<DIMPARAM, float_t> m_param_sampler;
+    utils::csv_param_sampler<DIMPARAM, FLOATTYPE> m_param_sampler;
 
     // days to expiration (aka how many days into the future you want to simulate)
     unsigned int m_dte;
@@ -199,15 +168,15 @@ private:
 public:
     // ctor
     // make sure parameter samples in csv are for phi,mu,sigma,rho
-    svol_lw_1_from_csv(float_t delta, const std::string &csv_of_samples, unsigned dte);
+    svol_lw_1_from_csv(FLOATTYPE delta, const std::string &csv_of_samples, unsigned dte);
 
     // functions that we need to define
-    float_t logMuEv (const ssv &x1, const psv& untrans_p1) override;
+    FLOATTYPE logMuEv (const ssv &x1, const psv& untrans_p1) override;
     ssv propMu  (const ssv &xtm1, const csv &cov_data, const psv& untrans_old_param) override;
     ssv q1Samp (const osv &y1, const psv& untrans_p1) override;
     ssv fSamp (const ssv &xtm1, const csv &zt, const psv& untrans_new_param) override;
-    float_t logQ1Ev (const ssv &x1, const osv &y1, const psv& untrans_p1) override;
-    float_t logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
+    FLOATTYPE logQ1Ev (const ssv &x1, const osv &y1, const psv& untrans_p1) override;
+    FLOATTYPE logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
     psv paramPriorSamp() override;
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
 
@@ -219,9 +188,9 @@ public:
 };
 
 
-template<size_t NUMPARTS, typename float_t>
-svol_lw_1_from_csv<NUMPARTS,float_t>::svol_lw_1_from_csv(float_t delta, const std::string &csv_of_samples, unsigned dte)
-    : LWFilterWithCovsFutureSimulator<NUMPARTS,DIMX,DIMY,DIMCOV,DIMPARAM,float_t>(
+template<size_t NUMPARTS>
+svol_lw_1_from_csv<NUMPARTS>::svol_lw_1_from_csv(FLOATTYPE delta, const std::string &csv_of_samples, unsigned dte)
+    : LWFilterWithCovsFutureSimulator<NUMPARTS,DIMSTATE,DIMOBS,DIMCOV,DIMPARAM,FLOATTYPE>(
     		std::vector<std::string> {"logit", "null", "log", "twice_fisher"}, // phi, mu, sigma, rho
             	delta)           // PRIORS
     // REMINDER: does output appear to be extremely sensitive to these?
@@ -231,77 +200,60 @@ svol_lw_1_from_csv<NUMPARTS,float_t>::svol_lw_1_from_csv(float_t delta, const st
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_1_from_csv<NUMPARTS,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_1_from_csv<NUMPARTS>::logMuEv(const ssv &x1, const psv& untrans_p1)
 {
-    // phi, mu, sigma, rho
-    float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return rveval::evalUnivNorm<float_t>(x1(0), 0.0, sd, true);
+    return sl::logMuEv(x1, untrans_p1);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_from_csv<NUMPARTS,float_t>::propMu(const ssv &xtm1, const csv &cov_data, const psv& untrans_old_param) -> ssv
+template<size_t NUMPARTS>
+auto svol_lw_1_from_csv<NUMPARTS>::propMu(const ssv &xtm1, const csv &cov_data, const psv& untrans_old_param) -> ssv
 {
-    // phi, mu, sigma, rho
-    ssv ans;
-    ans(0) = untrans_old_param(1) + untrans_old_param(0)*(xtm1(0) - untrans_old_param(1));
-    ans(0) += cov_data(0)*untrans_old_param(3)*untrans_old_param(2)*std::exp(-.5*xtm1(0));
-    return ans;
+    return sl::propMu(xtm1, cov_data, untrans_old_param);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_from_csv<NUMPARTS,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
+template<size_t NUMPARTS>
+auto svol_lw_1_from_csv<NUMPARTS>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
 {
-    // phi, mu, sigma, rho
-    ssv x1samp;
-    x1samp(0) = m_stdNormSampler.sample() * untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return x1samp;
+    return sl::muSamp(untrans_p1, m_stdNormSampler.sample());
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_from_csv<NUMPARTS,float_t>::fSamp(const ssv &xtm1, const csv &zt, const psv& untrans_new_param) -> ssv
+template<size_t NUMPARTS>
+auto svol_lw_1_from_csv<NUMPARTS>::fSamp(const ssv &xtm1, const csv &zt, const psv& untrans_new_param) -> ssv
 {
-    // phi, mu, sigma, rho
-    ssv xt;
-    float_t mean = untrans_new_param(1) + untrans_new_param(0)*(xtm1(0) - untrans_new_param(1)) + zt(0)*untrans_new_param(3)*untrans_new_param(2)*std::exp(-.5*xtm1(0));
-    xt(0) = mean + m_stdNormSampler.sample() * untrans_new_param(2) * std::sqrt( 1.0 - untrans_new_param(3) * untrans_new_param(3));
-    return xt;
+    return sl::fSamp(xtm1, zt, untrans_new_param, m_stdNormSampler.sample());
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_1_from_csv<NUMPARTS,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_1_from_csv<NUMPARTS>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
 {
-    // phi, mu, sigma, rho
-    float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return rveval::evalUnivNorm<float_t>(x1(0), 0.0, sd, true);
+    return sl::logMuEv(x1, untrans_p1);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_1_from_csv<NUMPARTS,float_t>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_1_from_csv<NUMPARTS>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
 {
-    return rveval::evalUnivNorm<float_t>(yt(0), 0.0, std::exp(.5*xt(0)), true);
+    return sl::logGEv(yt, xt);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_from_csv<NUMPARTS,float_t>::paramPriorSamp() -> psv
+template<size_t NUMPARTS>
+auto svol_lw_1_from_csv<NUMPARTS>::paramPriorSamp() -> psv
 {
     // phi, mu, sigma, rho
     return m_param_sampler.samp();
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_1_from_csv<NUMPARTS,float_t>::gSamp(const ssv &xt, const psv &untrans_pt) -> osv
+template<size_t NUMPARTS>
+auto svol_lw_1_from_csv<NUMPARTS>::gSamp(const ssv &xt, const psv &untrans_pt) -> osv
 {
-    osv ytsamp;
-    ytsamp(0) = m_stdNormSampler.sample() * std::exp(.5*xt(0));
-    return ytsamp;
+    return sl::gSamp(xt, m_stdNormSampler.sample());
 }
 
 
@@ -309,25 +261,19 @@ auto svol_lw_1_from_csv<NUMPARTS,float_t>::gSamp(const ssv &xt, const psv &untra
  * @brief "alternative" Liu-West filter
  * parameter order: phi, mu, sigma, rho
  */
-template<size_t NUMPARTS, typename float_t>
-class svol_lw_2_par : public LWFilter2WithCovsFutureSimulator<NUMPARTS, DIMX, DIMY, DIMCOV, DIMPARAM, float_t>
+template<size_t NUMPARTS>
+class svol_lw_2_par : public LWFilter2WithCovsFutureSimulator<NUMPARTS, DIMSTATE, DIMOBS, DIMCOV, DIMPARAM, FLOATTYPE>
 {
-public:
-    using ssv = Eigen::Matrix<float_t, DIMX, 1>;
-    using osv = Eigen::Matrix<float_t, DIMY, 1>;
-    using csv = Eigen::Matrix<float_t, DIMCOV,1>;
-    using psv = Eigen::Matrix<float_t, DIMPARAM,1>;
-
 private:
 
     // use this for samplign states
-    rvsamp::UnivNormSampler<float_t> m_stdNormSampler;
+    rvsamp::UnivNormSampler<FLOATTYPE> m_stdNormSampler;
 
     // for sampling from the parameter prior
-    rvsamp::UniformSampler<float_t> m_phi_sampler;
-    rvsamp::UniformSampler<float_t> m_mu_sampler;
-    rvsamp::UniformSampler<float_t> m_sigma_sampler;
-    rvsamp::UniformSampler<float_t> m_rho_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_phi_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_mu_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_sigma_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_rho_sampler;
 
     // days to expiration (aka how many days into the future you want to simulate)
     unsigned int m_dte;
@@ -335,16 +281,16 @@ private:
 public:
     // ctor
     svol_lw_2_par() = delete;
-    svol_lw_2_par(float_t delta, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u, unsigned m_dte);
+    svol_lw_2_par(FLOATTYPE delta, FLOATTYPE phi_l, FLOATTYPE phi_u, FLOATTYPE mu_l, FLOATTYPE mu_u, FLOATTYPE sig_l, FLOATTYPE sig_u, FLOATTYPE rho_l, FLOATTYPE rho_u, unsigned m_dte);
 
     // functions tha twe need to define
-    float_t logMuEv (const ssv &x1, const psv& untrans_p1) override;
+    FLOATTYPE logMuEv (const ssv &x1, const psv& untrans_p1) override;
     ssv q1Samp (const osv &y1, const psv& untrans_p1) override;
-    float_t logQ1Ev (const ssv &x1, const osv &y1, const psv& untrans_p1) override;
-    float_t logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
-    float_t logFEv (const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt) override;
+    FLOATTYPE logQ1Ev (const ssv &x1, const osv &y1, const psv& untrans_p1) override;
+    FLOATTYPE logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
+    FLOATTYPE logFEv (const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt) override;
     ssv qSamp (const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) override;
-    float_t logQEv (const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) override;
+    FLOATTYPE logQEv (const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) override;
     psv paramPriorSamp() override;
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
 
@@ -357,11 +303,11 @@ public:
 };
 
 
-template<size_t NUMPARTS, typename float_t>
-svol_lw_2_par<NUMPARTS,float_t>::svol_lw_2_par(float_t delta, float_t phi_l, float_t phi_u, float_t mu_l,
-                                             float_t mu_u, float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u,
+template<size_t NUMPARTS>
+svol_lw_2_par<NUMPARTS>::svol_lw_2_par(FLOATTYPE delta, FLOATTYPE phi_l, FLOATTYPE phi_u, FLOATTYPE mu_l,
+                                             FLOATTYPE mu_u, FLOATTYPE sig_l, FLOATTYPE sig_u, FLOATTYPE rho_l, FLOATTYPE rho_u,
                                              unsigned dte)
-        : LWFilter2WithCovsFutureSimulator<NUMPARTS,DIMX,DIMY,DIMCOV,DIMPARAM,float_t>(
+        : LWFilter2WithCovsFutureSimulator<NUMPARTS,DIMSTATE,DIMOBS,DIMCOV,DIMPARAM,FLOATTYPE>(
         std::vector<std::string> {"logit", "null", "log", "twice_fisher"}, // phi, mu, sigma, rho
         delta)           // PRIORS    // REMINDER: does output appear to be extremely sensitive to these?
         // REMINDER: does output appear to be extremely sensitive to these?
@@ -374,74 +320,57 @@ svol_lw_2_par<NUMPARTS,float_t>::svol_lw_2_par(float_t delta, float_t phi_l, flo
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_par<NUMPARTS,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_par<NUMPARTS>::logMuEv(const ssv &x1, const psv& untrans_p1)
 {
-    // phi, mu, sigma, rho
-    float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return rveval::evalUnivNorm<float_t>(x1(0), 0.0, sd, true);
+    return sl::logMuEv(x1, untrans_p1);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_2_par<NUMPARTS,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
+template<size_t NUMPARTS>
+auto svol_lw_2_par<NUMPARTS>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
 {
-    // phi, mu, sigma, rho
-    ssv x1samp;
-    x1samp(0) = m_stdNormSampler.sample() * untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return x1samp;
+    return sl::muSamp(untrans_p1, m_stdNormSampler.sample());
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_par<NUMPARTS,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_par<NUMPARTS>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
 {
-    // phi, mu, sigma, rho
-    float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return rveval::evalUnivNorm<float_t>(x1(0), 0.0, sd, true);
+    return sl::logMuEv(x1, untrans_p1);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_par<NUMPARTS,float_t>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_par<NUMPARTS>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
 {
-    return rveval::evalUnivNorm<float_t>(yt(0), 0.0, std::exp(.5*xt(0)), true);
+    return sl::logGEv(yt, xt);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_par<NUMPARTS,float_t>::logFEv(const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_par<NUMPARTS>::logFEv(const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt)
 {
-    // phi, mu, sigma, rho
-    float_t mean = untrans_pt(1) + untrans_pt(0)*(xtm1(0) - untrans_pt(1)) + cov_data(0)*untrans_pt(3)*untrans_pt(2)*std::exp(-.5*xtm1(0));
-    float_t sd = untrans_pt(2) * std::sqrt( 1.0 - untrans_pt(3) * untrans_pt(3));
-    return rveval::evalUnivNorm<float_t>(xt(0), mean, sd, true);
+    return sl::logFEv(xt, xtm1, cov_data, untrans_pt);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_2_par<NUMPARTS,float_t>::qSamp(const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) -> ssv
+template<size_t NUMPARTS>
+auto svol_lw_2_par<NUMPARTS>::qSamp(const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) -> ssv
 {
-    // phi, mu, sigma, rho
-    ssv xt;
-    float_t mean = untrans_pt(1) + untrans_pt(0)*(xtm1(0) - untrans_pt(1)) + cov_data(0)*untrans_pt(3)*untrans_pt(2)*std::exp(-.5*xtm1(0));
-    xt(0) = mean + m_stdNormSampler.sample() * untrans_pt(2) * std::sqrt( 1.0 - untrans_pt(3) * untrans_pt(3));
-    return xt;
+    return sl::fSamp(xtm1, cov_data, untrans_pt, m_stdNormSampler.sample());
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_par<NUMPARTS,float_t>::logQEv(const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_par<NUMPARTS>::logQEv(const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt)
 {
-    // phi, mu, sigma, rho
-    float_t mean = untrans_pt(1) + untrans_pt(0)*(xtm1(0) - untrans_pt(1)) + cov_data(0)*untrans_pt(3)*untrans_pt(2)*std::exp(-.5*xtm1(0));
-    float_t sd = untrans_pt(2) * std::sqrt( 1.0 - untrans_pt(3) * untrans_pt(3));
-    return rveval::evalUnivNorm<float_t>(xt(0), mean, sd, true);
+    return sl::logFEv(xt, xtm1, cov_data, untrans_pt);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_2_par<NUMPARTS,float_t>::paramPriorSamp() -> psv
+template<size_t NUMPARTS>
+auto svol_lw_2_par<NUMPARTS>::paramPriorSamp() -> psv
 {
     // phi, mu, sigma, rho
     psv untrans_samp;
@@ -452,12 +381,10 @@ auto svol_lw_2_par<NUMPARTS,float_t>::paramPriorSamp() -> psv
     return untrans_samp;
 }
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_2_par<NUMPARTS,float_t>::gSamp(const ssv &xt, const psv &untrans_pt) -> osv
+template<size_t NUMPARTS>
+auto svol_lw_2_par<NUMPARTS>::gSamp(const ssv &xt, const psv &untrans_pt) -> osv
 {
-    osv ytsamp;
-    ytsamp(0) = m_stdNormSampler.sample() * std::exp(.5*xt(0));
-    return ytsamp;
+    return sl::gSamp(xt, m_stdNormSampler.sample());
 }
 
 
@@ -465,23 +392,23 @@ auto svol_lw_2_par<NUMPARTS,float_t>::gSamp(const ssv &xt, const psv &untrans_pt
  * @brief "alternative" Liu-West filter
  * parameter order: phi, beta, sigma
  */
-template<size_t NUMPARTS, typename float_t>
+template<size_t NUMPARTS>
 class svol_lw_2_from_csv
-        : public LWFilter2WithCovsFutureSimulator<NUMPARTS, DIMX, DIMY, DIMCOV, DIMPARAM, float_t>
+        : public LWFilter2WithCovsFutureSimulator<NUMPARTS, DIMSTATE, DIMOBS, DIMCOV, DIMPARAM, FLOATTYPE>
 {
-public:
-    using ssv = Eigen::Matrix<float_t, DIMX, 1>;
-    using osv = Eigen::Matrix<float_t, DIMY, 1>;
-    using csv = Eigen::Matrix<float_t, DIMCOV,1>;
-    using psv = Eigen::Matrix<float_t, DIMPARAM,1>;
+//public:
+//    using ssv = Eigen::Matrix<FLOATTYPE, DIMSTATE, 1>;
+//    using osv = Eigen::Matrix<FLOATTYPE, DIMOBS, 1>;
+//    using csv = Eigen::Matrix<FLOATTYPE, DIMCOV,1>;
+//    using psv = Eigen::Matrix<FLOATTYPE, DIMPARAM,1>;
 
 private:
 
     // use this for samplign states
-    rvsamp::UnivNormSampler<float_t> m_stdNormSampler;  
+    rvsamp::UnivNormSampler<FLOATTYPE> m_stdNormSampler;  
 
     // for sampling from mcmc samples
-    utils::csv_param_sampler<DIMPARAM, float_t> m_param_sampler;
+    utils::csv_param_sampler<DIMPARAM, FLOATTYPE> m_param_sampler;
 
     // days to expiration (aka how many days into future you're simulating)
     unsigned int m_dte;
@@ -489,16 +416,16 @@ private:
 public:
     // ctor
     // make sure parameter samples in csv are for phi,mu,sigma,rho
-    svol_lw_2_from_csv(float_t delta, const std::string &csv_param_samples, unsigned dte);
+    svol_lw_2_from_csv(FLOATTYPE delta, const std::string &csv_param_samples, unsigned dte);
 
     // functions tha twe need to define
-    float_t logMuEv (const ssv &x1, const psv& untrans_p1) override;
+    FLOATTYPE logMuEv (const ssv &x1, const psv& untrans_p1) override;
     ssv q1Samp (const osv &y1, const psv& untrans_p1) override;
-    float_t logQ1Ev (const ssv &x1, const osv &y1, const psv& untrans_p1) override;
-    float_t logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
-    float_t logFEv (const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt) override;
+    FLOATTYPE logQ1Ev (const ssv &x1, const osv &y1, const psv& untrans_p1) override;
+    FLOATTYPE logGEv (const osv &yt, const ssv &xt, const psv& untrans_pt) override;
+    FLOATTYPE logFEv (const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt) override;
     ssv qSamp (const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) override;
-    float_t logQEv (const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) override;
+    FLOATTYPE logQEv (const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) override;
     psv paramPriorSamp() override;
     osv gSamp(const ssv &xt, const psv &untrans_pt) override;
 
@@ -509,10 +436,10 @@ public:
 
 };
 
-template<size_t NUMPARTS, typename float_t>
-svol_lw_2_from_csv<NUMPARTS,float_t>::svol_lw_2_from_csv(float_t delta, const std::string &csv_param_samples,
+template<size_t NUMPARTS>
+svol_lw_2_from_csv<NUMPARTS>::svol_lw_2_from_csv(FLOATTYPE delta, const std::string &csv_param_samples,
                                                        unsigned dte)
-    : LWFilter2WithCovsFutureSimulator<NUMPARTS,DIMX,DIMY,DIMCOV,DIMPARAM,float_t>(
+    : LWFilter2WithCovsFutureSimulator<NUMPARTS,DIMSTATE,DIMOBS,DIMCOV,DIMPARAM,FLOATTYPE>(
     				std::vector<std::string>{"logit", "null", "log", "twice_fisher"}, // phi, mu, sigma, rho
             			delta)           // PRIORS    // REMINDER: does output appear to be extremely sensitive to these?
     // REMINDER: does output appear to be extremely sensitive to these?
@@ -522,84 +449,65 @@ svol_lw_2_from_csv<NUMPARTS,float_t>::svol_lw_2_from_csv(float_t delta, const st
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_from_csv<NUMPARTS,float_t>::logMuEv(const ssv &x1, const psv& untrans_p1)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_from_csv<NUMPARTS>::logMuEv(const ssv &x1, const psv& untrans_p1)
 {
-    // phi, mu, sigma, rho
-    float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return rveval::evalUnivNorm<float_t>(x1(0), 0.0, sd, true);
+    return sl::logMuEv(x1, untrans_p1);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_2_from_csv<NUMPARTS,float_t>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
+template<size_t NUMPARTS>
+auto svol_lw_2_from_csv<NUMPARTS>::q1Samp(const osv &y1, const psv& untrans_p1) -> ssv
 {
-    // phi, mu, sigma, rho
-    ssv x1samp;
-    x1samp(0) = m_stdNormSampler.sample() * untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return x1samp;
+    return sl::muSamp(untrans_p1, m_stdNormSampler.sample());
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_from_csv<NUMPARTS,float_t>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_from_csv<NUMPARTS>::logQ1Ev(const ssv &x1, const osv &y1, const psv& untrans_p1)
 {
-    // phi, mu, sigma, rho
-    float_t sd = untrans_p1(2) / std::sqrt(1.0 - untrans_p1(0)*untrans_p1(0));
-    return rveval::evalUnivNorm<float_t>(x1(0), 0.0, sd, true);
+    return sl::logMuEv(x1, untrans_p1);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_from_csv<NUMPARTS,float_t>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_from_csv<NUMPARTS>::logGEv(const osv &yt, const ssv &xt, const psv& untrans_pt)
 {
-    return rveval::evalUnivNorm<float_t>(yt(0), 0.0, std::exp(.5*xt(0)), true);
+    return sl::logGEv(yt, xt);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_from_csv<NUMPARTS,float_t>::logFEv(const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_from_csv<NUMPARTS>::logFEv(const ssv &xt, const ssv &xtm1, const csv &cov_data, const psv& untrans_pt)
 {
-    // phi, mu, sigma, rho
-    float_t mean = untrans_pt(1) + untrans_pt(0)*(xtm1(0) - untrans_pt(1)) + cov_data(0)*untrans_pt(3)*untrans_pt(2)*std::exp(-.5*xtm1(0));
-    float_t sd = untrans_pt(2) * std::sqrt( 1.0 - untrans_pt(3) * untrans_pt(3));
-    return rveval::evalUnivNorm<float_t>(xt(0), mean, sd, true);
+    return sl::logFEv(xt, xtm1, cov_data, untrans_pt);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_2_from_csv<NUMPARTS,float_t>::qSamp(const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) -> ssv
+template<size_t NUMPARTS>
+auto svol_lw_2_from_csv<NUMPARTS>::qSamp(const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt) -> ssv
 {
-    // phi, mu, sigma, rho
-    ssv xt;
-    float_t mean = untrans_pt(1) + untrans_pt(0)*(xtm1(0) - untrans_pt(1)) + cov_data(0)*untrans_pt(3)*untrans_pt(2)*std::exp(-.5*xtm1(0));
-    xt(0) = mean + m_stdNormSampler.sample() * untrans_pt(2) * std::sqrt( 1.0 - untrans_pt(3) * untrans_pt(3));
-    return xt;
+    return sl::fSamp(xtm1, cov_data, untrans_pt, m_stdNormSampler.sample());
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-float_t svol_lw_2_from_csv<NUMPARTS,float_t>::logQEv(const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt)
+template<size_t NUMPARTS>
+FLOATTYPE svol_lw_2_from_csv<NUMPARTS>::logQEv(const ssv &xt, const ssv &xtm1, const osv &yt, const csv &cov_data, const psv& untrans_pt)
 {
-    // phi, mu, sigma, rho
-    float_t mean = untrans_pt(1) + untrans_pt(0)*(xtm1(0) - untrans_pt(1)) + cov_data(0)*untrans_pt(3)*untrans_pt(2)*std::exp(-.5*xtm1(0));
-    float_t sd = untrans_pt(2) * std::sqrt( 1.0 - untrans_pt(3) * untrans_pt(3));
-    return rveval::evalUnivNorm<float_t>(xt(0), mean, sd, true);
+    return sl::logFEv(xt, xtm1, cov_data, untrans_pt);
 }
 
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_2_from_csv<NUMPARTS,float_t>::paramPriorSamp() -> psv
+template<size_t NUMPARTS>
+auto svol_lw_2_from_csv<NUMPARTS>::paramPriorSamp() -> psv
 {
     return m_param_sampler.samp();
 }
 
-template<size_t NUMPARTS, typename float_t>
-auto svol_lw_2_from_csv<NUMPARTS,float_t>::gSamp(const ssv &xt, const psv &untrans_pt) -> osv
+template<size_t NUMPARTS>
+auto svol_lw_2_from_csv<NUMPARTS>::gSamp(const ssv &xt, const psv &untrans_pt) -> osv
 {
-    osv ytsamp;
-    ytsamp(0) = m_stdNormSampler.sample() * std::exp(.5*xt(0));
-    return ytsamp;
+    return sl::gSamp(xt, m_stdNormSampler.sample());
 }
 
 
@@ -607,30 +515,26 @@ auto svol_lw_2_from_csv<NUMPARTS,float_t>::gSamp(const ssv &xt, const psv &untra
  * @brief particle swarm filter (many bootstrap filters)
  * this samples parameters from parameterized distribution
  */
-template<size_t n_state_parts, size_t n_param_parts, typename float_t>
-class svol_swarm_1 : public SwarmWithCovs<svol_leverage<n_state_parts,mn_resamp_fast1<n_state_parts,DIMX,float_t>, float_t>,
+template<size_t n_state_parts, size_t n_param_parts>
+class svol_swarm_1 : public SwarmWithCovs<svol_leverage<n_state_parts,mn_resamp_fast1<n_state_parts,DIMSTATE,FLOATTYPE>>,
         1,
         n_state_parts,
         n_param_parts,
-        DIMY, DIMX, DIMCOV, DIMPARAM>
+        DIMOBS, DIMSTATE, DIMCOV, DIMPARAM>
 {
 public:
 
-    using ModType = svol_leverage<n_state_parts,mn_resamp_fast1<n_state_parts,DIMX,float_t>, float_t>;
-    using SwarmBase = SwarmWithCovs<ModType, 1, n_state_parts, n_param_parts, DIMY, DIMX, DIMCOV, DIMPARAM>;
-    using ssv = Eigen::Matrix<float_t,DIMX,1>;
-    using csv = Eigen::Matrix<float_t,DIMCOV,1>;
-    using osv = Eigen::Matrix<float_t,DIMY,1>;
-    using psv = Eigen::Matrix<float_t, DIMPARAM,1>;
+    using ModType = svol_leverage<n_state_parts,mn_resamp_fast1<n_state_parts,DIMSTATE,FLOATTYPE>>;
+    using SwarmBase = SwarmWithCovs<ModType, 1, n_state_parts, n_param_parts, DIMOBS, DIMSTATE, DIMCOV, DIMPARAM>;
     using state_cov_parm_func = typename SwarmBase::state_cov_parm_func;
 
 private:
 
     // for sampling from the parameter prior
-    rvsamp::UniformSampler<float_t> m_phi_sampler;
-    rvsamp::UniformSampler<float_t> m_mu_sampler;
-    rvsamp::UniformSampler<float_t> m_sigma_sampler;
-    rvsamp::UniformSampler<float_t> m_rho_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_phi_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_mu_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_sigma_sampler;
+    rvsamp::UniformSampler<FLOATTYPE> m_rho_sampler;
 
     // days to expiration (aka how many days into future you're simulating)
     unsigned int m_dte;
@@ -640,8 +544,8 @@ public:
     svol_swarm_1() = delete;
 
     // ctor
-    svol_swarm_1(const std::vector<state_cov_parm_func>& fs, float_t phi_l, float_t phi_u, float_t mu_l, float_t mu_u,
-                 float_t sig_l, float_t sig_u, float_t rho_l, float_t rho_u, unsigned int dte)
+    svol_swarm_1(const std::vector<state_cov_parm_func>& fs, FLOATTYPE phi_l, FLOATTYPE phi_u, FLOATTYPE mu_l, FLOATTYPE mu_u,
+                 FLOATTYPE sig_l, FLOATTYPE sig_u, FLOATTYPE rho_l, FLOATTYPE rho_u, unsigned int dte)
             : SwarmBase(fs)
             , m_phi_sampler(phi_l, phi_u)
             , m_mu_sampler(mu_l, mu_u)
@@ -678,28 +582,24 @@ public:
  * this samples parameters from csv file
  */
 
-template<size_t n_state_parts, size_t n_param_parts, typename float_t>
+template<size_t n_state_parts, size_t n_param_parts>
 class svol_swarm_2
-        : public SwarmWithCovs<svol_leverage<n_state_parts,mn_resamp_fast1<n_state_parts,DIMX,float_t>,float_t>,
+        : public SwarmWithCovs<svol_leverage<n_state_parts,mn_resamp_fast1<n_state_parts,DIMSTATE,FLOATTYPE>>,
                 1,
                 n_state_parts,
                 n_param_parts,
-                DIMY, DIMX, DIMCOV, DIMPARAM>
+                DIMOBS, DIMSTATE, DIMCOV, DIMPARAM>
 {
 public:
 
-    using ModType = svol_leverage<n_state_parts,mn_resamp_fast1<n_state_parts,DIMX,float_t>, float_t>;
-    using SwarmBase = SwarmWithCovs<ModType, 1, n_state_parts, n_param_parts, DIMY, DIMX, DIMCOV, DIMPARAM>;
-    using ssv = Eigen::Matrix<float_t,DIMX,1>;
-    using csv = Eigen::Matrix<float_t,DIMCOV,1>;
-    using osv = Eigen::Matrix<float_t,DIMY,1>;
-    using psv = Eigen::Matrix<float_t, DIMPARAM,1>;
+    using ModType = svol_leverage<n_state_parts,mn_resamp_fast1<n_state_parts,DIMSTATE,FLOATTYPE>>;
+    using SwarmBase = SwarmWithCovs<ModType, 1, n_state_parts, n_param_parts, DIMOBS, DIMSTATE, DIMCOV, DIMPARAM>;
     using state_cov_parm_func = typename SwarmBase::state_cov_parm_func;
 
 private:
 
     // for sampling from mcmc samples
-    utils::csv_param_sampler<DIMPARAM, float_t> m_param_sampler;
+    utils::csv_param_sampler<DIMPARAM, FLOATTYPE> m_param_sampler;
 
     // days to expiration (aka how many days into future you're simulating)
     unsigned int m_dte;

@@ -1,1 +1,0 @@
-/usr/bin/c++ -pthread -g CMakeFiles/jsmpp_v2.dir/main.cpp.o -o jsmpp_v2 
