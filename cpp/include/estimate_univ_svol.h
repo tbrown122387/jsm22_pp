@@ -10,7 +10,6 @@
 
 #include "svol_leverage_mod.h"
 
-
 // define directives included from svol_leverage_mod.h
 
 using namespace pf::resamplers;
@@ -77,6 +76,8 @@ svol_leverage_estimator<numparts>::svol_leverage_estimator(
 template<size_t numparts>
 FLOATTYPE svol_leverage_estimator<numparts>::log_prior_eval(const param::pack<FLOATTYPE,DIMPARAM>& theta)
 {
+
+    // following priors from Jun Yu 2004
     // value to be returned
     FLOATTYPE returnThis(0.0);
    
@@ -87,17 +88,20 @@ FLOATTYPE svol_leverage_estimator<numparts>::log_prior_eval(const param::pack<FL
     FLOATTYPE sigmaSq = theta.get_untrans_params(2,2)(0);
     FLOATTYPE rho   = theta.get_untrans_params(3,3)(0);
 
-    // phi ~ uniform(0, .99)
-    returnThis += rveval::evalUniform<FLOATTYPE>(phi, 0, .99, true);
+    // phiPrime ~ beta(20, 1.5)
+    // this is hacky because we're circumventing the transform thing of the parameter pack, but it will still cancel in
+    // the acceptance ratio
+    FLOATTYPE phi_prime = .5*(phi + 1.0)
+    returnThis += rveval::evalUnivBeta<FLOATTYPE>(phi_prime, 20, 1.5, true);
 
-    // mu ~ Normal(0,1)
-    returnThis += rveval::evalUnivNorm<FLOATTYPE>(mu, 0.0, 10.0, true);
+    // mu ~ Normal(0,25)
+    returnThis += rveval::evalUnivNorm<FLOATTYPE>(mu, 0.0, 25.0, true);
 
-    // ss ~ InverseGamma(.001, .001)
-    returnThis += rveval::evalUnivInvGamma<FLOATTYPE>(sigmaSq, .001, .001, true);
+    // ss ~ InverseGamma
+    returnThis += rveval::evalUnivInvGamma<FLOATTYPE>(sigmaSq, 2.5, .025, true);
 
-    // rho ~ Uniform(-1, 0)
-    returnThis += rveval::evalUniform<FLOATTYPE>(rho, -1.0, 0, true);
+    // rho ~ Uniform(-1, 1)
+    returnThis += rveval::evalUniform<FLOATTYPE>(rho, -1.0, 1.0, true);
 
 
     return returnThis;    
@@ -159,13 +163,14 @@ void do_ada_pmmh_svol_leverage(const std::string &datafile,
     // phi, mu, sigmaSq, rho
     std::vector<std::string> tts {"logit", "null", "log", "twice_fisher"}; 
     psv start_trans_theta;
-    start_trans_theta << rveval::logit<FLOATTYPE>(.5), 0.0, std::log(2.0e-4), rveval::twiceFisher<FLOATTYPE>(-.5);
+    start_trans_theta << rveval::logit<FLOATTYPE>(.5), 0.0, std::log(1.0), rveval::twiceFisher<FLOATTYPE>(-.5);
 
     
     // the chain's initial covariance matrix 
-    psm C0 = psm::Identity()*.15;
+    psm C0 = psm::Identity()*2.38*2.38/4.0;
     unsigned int t0 = 150;  // start adapting the covariance at this iteration
-    unsigned int t1 = 1000; // end adapting the covariance at this iteration
+    //unsigned int t1 = 1000; // end adapting the covariance at this iteration
+    unsigned int t1 = 0; // never adapt
     svol_leverage_estimator<numparts> mcmcobj(
                                                     	start_trans_theta,
                                                     	tts,
