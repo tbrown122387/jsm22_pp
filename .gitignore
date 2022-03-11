@@ -1,5 +1,8 @@
 data/samps_*
 data/messages_*
 data/cond_likes/*
+plots/*
 cpp/cmake-build-debug/*
 cpp/cmake-build-release/*
+.RData
+.Rhistory

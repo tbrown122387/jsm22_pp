@@ -91,7 +91,7 @@ FLOATTYPE svol_leverage_estimator<numparts>::log_prior_eval(const param::pack<FL
     // phiPrime ~ beta(20, 1.5)
     // this is hacky because we're circumventing the transform thing of the parameter pack, but it will still cancel in
     // the acceptance ratio
-    FLOATTYPE phi_prime = .5*(phi + 1.0)
+    FLOATTYPE phi_prime = .5*(phi + 1.0);
     returnThis += rveval::evalUnivBeta<FLOATTYPE>(phi_prime, 20, 1.5, true);
 
     // mu ~ Normal(0,25)
@@ -191,4 +191,4 @@ void do_ada_pmmh_svol_leverage(const std::string &datafile,
 
 
 
-#endif //ESTIMATE_MSL1_H
+#endif //ESTIMATE_UNIV_SVOL_H

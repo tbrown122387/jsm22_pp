@@ -283,7 +283,7 @@ int main(int argc, char* argv[]){
                 "messages",
                 num_mcmc_iters,
                 num_pfilters,
-                false); // use multicore?
+                true); // use multicore?
     }
 
 

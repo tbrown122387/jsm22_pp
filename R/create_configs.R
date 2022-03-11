@@ -10,8 +10,8 @@ rhoHigh <- -.699
 dte <- 5
 delta <- .99
 paramSamplesFile <- "data/param_samples.csv"
-numMCMCIters <- 1000
-numPFs <- 2
+numMCMCIters <- 50000
+numPFs <- 7
 
 # check your highs and lows are consistent with the data 
 setwd("~/jsm22_pp/data/")
