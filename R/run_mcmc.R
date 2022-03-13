@@ -8,9 +8,10 @@ setwd("~/jsm22_pp/")
 system("cp data/param_samples.csv data/param_samples.csv.bck")
 
 # 2. run mcmc
-# (be sure you're happy with all the hardcoded stuff in that file, and that it's all compiled)
+# (be sure you're happy with all the hardcoded stuff in that 
+# file, that it's all compiled, and that you're cool with config6)
 startTime <- Sys.time()
-myCmd <- './cpp/cmake-build-release/jsmpp_v2 22 "data/SPY_returns.csv"'
+myCmd <- './cpp/cmake-build-release/jsmpp_v2 22 data/SPY_returns.csv'
 system(myCmd)
 endTime <- Sys.time()
 

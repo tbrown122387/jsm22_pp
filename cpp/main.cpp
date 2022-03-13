@@ -276,9 +276,10 @@ int main(int argc, char* argv[]){
         // get arguments and call function
         ConfigType6<FLOATTYPE> cfg("configs/config6.csv");
         unsigned int num_mcmc_iters, num_pfilters;
-        cfg.set_config_params(num_mcmc_iters, num_pfilters);
+        std::string est_data_filename;
+        cfg.set_config_params(num_mcmc_iters, num_pfilters, est_data_filename);
         do_ada_pmmh_svol_leverage<NUMXPARTS>(
-                data_filename,
+                est_data_filename,
                 "samples",
                 "messages",
                 num_mcmc_iters,

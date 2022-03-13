@@ -1,21 +1,24 @@
 # changes made here will be propogated to many files
-phiLow <- .899
-phiHigh <- .901
-muLow <- -.001
-muHigh <- .001
-sigmaLow <- .999
-sigmaHigh <- 1.01
-rhoLow <- -.701
-rhoHigh <- -.699
+phiLow <- .9
+phiHigh <- .99
+muLow <- -.3
+muHigh <- .3
+sigmaLow <- .1
+sigmaHigh <- .5
+rhoLow <- -.9
+rhoHigh <- -.6
 dte <- 5
 delta <- .99
 paramSamplesFile <- "data/param_samples.csv"
-numMCMCIters <- 50000
+estDataFile <- "data/SPY_returns_estimation.csv"
+numMCMCIters <- 100000
 numPFs <- 7
+burn <- 100
 
 # check your highs and lows are consistent with the data 
 setwd("~/jsm22_pp/data/")
-parEstimates <- colMeans(read.csv("param_samples.csv", header=F))
+d <- read.csv("param_samples.csv", header=F)
+parEstimates <- colMeans(d[(burn+1):nrow(d),])
 phiGood <- (phiLow < parEstimates[1]) & (parEstimates[1] < phiHigh)
 muGood <- (muLow < parEstimates[2]) & (parEstimates[2] < muHigh)
 sigmaGood <- (sigmaLow < parEstimates[3]) & (parEstimates[3] < sigmaHigh)
@@ -50,5 +53,5 @@ write.table(myStr, "../configs/config5.csv", append = F, quote = F, col.names = 
 
 # config 6
 # num_mcmc_iters, num_particle_filters
-myStr <- paste(numMCMCIters, numPFs, sep = ", ")
+myStr <- paste(numMCMCIters, numPFs, estDataFile, sep = ",")
 write.table(myStr, "../configs/config6.csv", append = F, quote = F, col.names = F, row.names = F)

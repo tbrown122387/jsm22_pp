@@ -307,7 +307,7 @@ void ConfigType5<float_t>::set_config_params(float_t& phi, float_t& mu, float_t&
 /**
  * @brief option 6: (for run mode 22 which is estimation)
  * FILE FORMAT:
- * num_mcmc_iters, num_particle_filters
+ * num_mcmc_iters, num_particle_filters, estimation_data_filename
  */
 template<typename float_t>
 class ConfigType6 {
@@ -315,7 +315,8 @@ public:
     ConfigType6() = delete;
     ConfigType6(const std::string& file);
     unsigned m_num_mcmc_iters, m_num_particle_filters;
-    void set_config_params(unsigned int &num_mcmc_iters, unsigned int &num_particle_filters) const;
+    std::string m_est_data_filename;
+    void set_config_params(unsigned int &num_mcmc_iters, unsigned int &num_particle_filters, std::string& est_data_filename) const;
 };
 
 template<typename float_t>
@@ -325,17 +326,19 @@ ConfigType6<float_t>::ConfigType6(const std::string& file)
     std::ifstream fs(file);
     if( fs.good() ){
 
-        std::string _num_mcmc_iters, _num_particle_filters, line;
+        std::string _num_mcmc_iters, _num_particle_filters, _est_data_filename, line;
         while( std::getline(fs, line) ){
 
             // split up data
             std::istringstream stream(line);
             std::getline(stream, _num_mcmc_iters, ',');
             std::getline(stream, _num_particle_filters, ',');
+            std::getline(stream, _est_data_filename, ',');
 
             // store the info
             m_num_mcmc_iters = std::stoi(_num_mcmc_iters);
             m_num_particle_filters = std::stoi(_num_particle_filters);
+            m_est_data_filename = _est_data_filename;
         }
 
     }else{
@@ -344,10 +347,12 @@ ConfigType6<float_t>::ConfigType6(const std::string& file)
 }
 
 template<typename float_t>
-void ConfigType6<float_t>::set_config_params(unsigned int &num_mcmc_iters, unsigned int &num_particle_filters) const
+void ConfigType6<float_t>::set_config_params(unsigned int &num_mcmc_iters, unsigned int &num_particle_filters,
+                                             std::string& est_data_filename) const
 {
     num_mcmc_iters = m_num_mcmc_iters;
     num_particle_filters = m_num_particle_filters;
+    est_data_filename = m_est_data_filename;
 }
 #endif // CONFIG_FILE_READERS_H
 

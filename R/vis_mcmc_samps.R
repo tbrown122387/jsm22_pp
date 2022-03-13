@@ -128,4 +128,5 @@ dev.off()
 
 # numerical statistics
 acceptRate <- acceptRate(d, burn = burn)
-rhats("data/param_samples.csv")
+cat("accept rate: ", acceptRate, "\n")
+cat("rhats: ", rhats("data/param_samples.csv"), "\n")
