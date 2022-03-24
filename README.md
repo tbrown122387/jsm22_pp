@@ -17,7 +17,9 @@ You need:
 
 ### How to Build C++ Code
 
-The cpp code is in `cpp/`. After installing all the above software, you can build the project with CMake. Most IDEs handle CMake projects, and you can also do it from the command line.
+The cpp code is in `cpp/`. After installing all the above software, you can build the project with CMake. Most IDEs handle CMake projects, and you can also do it from the command line. 
+
+Note: depending on where you installed the above software, you might have to chane a few lines in `cpp/CMakeLists.txt`. For example, say you downloaded `eigen` and didn't install it to `/usr/include/eigen3`. Then the line `include_directories(/usr/include/eigen3)` in `cpp/CMakeLists.txt` is wrong for you, and you need to change the path in there. 
 
 #### Option 1: CLion IDE
 
