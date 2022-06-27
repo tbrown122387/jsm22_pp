@@ -126,7 +126,11 @@ ggplot(data = acfData,
        x='lag')
 dev.off()
 
-# numerical statistics
+# write out numerical statistics
 acceptRate <- acceptRate(d, burn = burn)
-cat("accept rate: ", acceptRate, "\n")
-cat("rhats: ", rhats("data/param_samples.csv"), "\n")
+acceptRateMessage <- paste("accept rate: ", acceptRate)
+rhatsMessage <- paste("rhats: ", rhats("data/param_samples.csv"))
+fileConn<-file("data/mcmc_numerical_diagnostics.txt")
+writeLines(acceptRateMessage, fileConn)
+writeLines(rhatsMessage, fileConn)
+close(fileConn)

@@ -8,6 +8,7 @@
 # *
 
 
+# TODO make this happen in Makefile
 # have to change directory because some filepaths are hardcoded relative style
 setwd("~/jsm22_pp/")
 source("R/create_configs.R")

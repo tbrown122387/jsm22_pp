@@ -1,0 +1,113 @@
+digraph G {
+
+  /* todo: trim config dependencies */
+  /* todo: verify that dependencies are handled in Makfiles and scripts aren't sourcing other scripts */
+
+  /* create_configs.R */
+  "R/create_configs.R"[shape=star];  
+  "data/param_samples.csv" -> "R/create_configs.R";
+  "R/create_configs.R" -> "configs/config1.csv";
+  "R/create_configs.R" -> "configs/config2.csv";
+  "R/create_configs.R" -> "configs/config3.csv"; 
+  "R/create_configs.R" -> "configs/config4.csv";  
+  "R/create_configs.R" -> "configs/config5.csv";   
+  "R/create_configs.R" -> "configs/config6.csv"; 
+  
+  /* prices_to_returns.R */
+  "R/prices_to_returns.R"[shape=star];  
+  "data/SPY.csv" -> "R/prices_to_returns.R"
+  "R/prices_to_returns.R" -> "data/SPY_returns.csv";
+  "R/prices_to_returns.R" -> "data/SPY_returns_estimation.csv";
+
+  /* run_conditional_likes.R */  
+  "R/run_conditional_likes.R"[shape=star];  
+  "cpp_program" -> "R/run_conditional_likes.R";
+  "data/SPY_returns.csv" -> "R/run_conditional_likes.R";
+  "configs/config1.csv" -> "R/run_conditional_likes.R";
+  "configs/config2.csv" -> "R/run_conditional_likes.R";
+  "configs/config3.csv" -> "R/run_conditional_likes.R"; 
+  "configs/config4.csv" -> "R/run_conditional_likes.R";  
+  "configs/config5.csv" -> "R/run_conditional_likes.R";   
+  "configs/config6.csv" -> "R/run_conditional_likes.R"; 
+  "R/run_conditional_likes.R" -> "data/cond_likes/lw_aux_prior.txt";
+  "R/run_conditional_likes.R" -> "data/cond_likes/lw_aux_csv.txt";
+  "R/run_conditional_likes.R" -> "data/cond_likes/lw2_prior.txt";
+  "R/run_conditional_likes.R" -> "data/cond_likes/lw2_csv.txt";  
+  "R/run_conditional_likes.R" -> "data/cond_likes/swarm_prior.txt";    
+  "R/run_conditional_likes.R" -> "data/cond_likes/swarm_csv.txt";    
+  "R/run_conditional_likes.R" -> "data/cond_likes/pf_est.txt";    
+  
+  /* run_mcmc.R */  
+  "R/run_mcmc.R"[shape=star];  
+  "cpp_program" -> "R/run_mcmc.R";
+  "data/SPY_returns_estimation.csv" -> "R/run_mcmc.R";
+  "R/run_mcmc.R" -> "data/param_samples.csv";
+  "R/run_mcmc.R" -> "data/param_samples.csv.bck";
+  "R/run_mcmc.R" -> "data/mcmc_time_taken.txt";
+
+  /* run_state_ests.R */
+  "R/run_state_ests.R"[shape=star];  
+  "configs/config1.csv" -> "R/run_state_ests.R";
+  "configs/config2.csv" -> "R/run_state_ests.R";
+  "configs/config3.csv" -> "R/run_state_ests.R"; 
+  "configs/config4.csv" -> "R/run_state_ests.R";  
+  "configs/config5.csv" -> "R/run_state_ests.R";   
+  "configs/config6.csv" -> "R/run_state_ests.R"; 
+  "cpp_program" -> "R/run_state_ests.R";
+  "data/SPY_returns.csv" -> "R/run_state_ests.R";
+  "R/run_state_ests.R" -> "data/state_estimates/lw_aux_prior.txt";
+  "R/run_state_ests.R" -> "data/state_estimates/lw_aux_csv.txt";
+  "R/run_state_ests.R" -> "data/state_estimates/lw2_prior.txt";
+  "R/run_state_ests.R" -> "data/state_estimates/lw2_csv.txt";  
+  "R/run_state_ests.R" -> "data/state_estimates/swarm_prior.txt";    
+  "R/run_state_ests.R" -> "data/state_estimates/swarm_csv.txt";    
+  "R/run_state_ests.R" -> "data/state_estimates/pf_est.txt";    
+
+  /* update_csv.R */
+  "R/update_csv.R"[shape=star];  
+  "data/SPY.csv" -> "R/update_csv.R";
+  "R/update_csv.R" -> "data/SPY.csv";
+  "R/update_csv.R" -> "data/SPY.csv.bck";  
+
+  /* vis_conditional_likes.R */
+  /* todo: fill in visualization output file names */
+  "R/vis_conditional_likes.R"[shape=star];  
+  "data/cond_likes/lw_aux_prior.txt" -> "R/vis_conditional_likes.R";
+  "data/cond_likes/lw_aux_csv.txt" -> "R/vis_conditional_likes.R";
+  "data/cond_likes/lw2_prior.txt" -> "R/vis_conditional_likes.R";
+  "data/cond_likes/lw2_csv.txt" -> "R/vis_conditional_likes.R";  
+  "data/cond_likes/swarm_prior.txt" -> "R/vis_conditional_likes.R";    
+  "data/cond_likes/swarm_csv.txt" -> "R/vis_conditional_likes.R";    
+  "data/cond_likes/pf_est.txt" -> "R/vis_conditional_likes.R";
+
+  /* vis_mcmc_samps.R */
+  /* todo: fill in visualization output file names */
+  "R/vis_mcmc_samps.R"[shape=star];  
+  "data/param_samples.csv" -> "R/vis_mcmc_samps.R";
+  "R/vis_mcmc_samps.R" -> "plots/pairwise_scatterplot.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/phi_hist.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/mu_hist.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/sigma_hist.pdf";  
+  "R/vis_mcmc_samps.R" -> "plots/rho_hist.pdf";  
+  "R/vis_mcmc_samps.R" -> "plots/phi_trace.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/mu_trace.pdf";  
+  "R/vis_mcmc_samps.R" -> "plots/sigma_trace.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/rho_trace.pdf";  
+  "R/vis_mcmc_samps.R" -> "plots/phi_acf.pdf";  
+  "R/vis_mcmc_samps.R" -> "plots/mu_acf.pdf";  
+  "R/vis_mcmc_samps.R" -> "plots/sigma_acf.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/rho_acf.pdf";
+  "R/vis_mcmc_samps.R" -> "data/mcmc_numerical_diagnostics.txt";
+  
+  /* vis_state_ests.R */
+  /* todo: fill in visualization output file names */
+  "R/vis_state_ests.R"[shape=star];  
+  "data/state_estimates/lw_aux_prior.txt" -> "R/vis_state_ests.R";
+  "data/state_estimates/lw_aux_csv.txt" -> "R/vis_state_ests.R";
+  "data/state_estimates/lw2_prior.txt" -> "R/vis_state_ests.R";
+  "data/state_estimates/lw2_csv.txt" -> "R/vis_state_ests.R";  
+  "data/state_estimates/swarm_prior.txt" -> "R/vis_state_ests.R";    
+  "data/state_estimates/swarm_csv.txt" -> "R/vis_state_ests.R";    
+  "data/state_estimates/pf_est.txt" -> "R/vis_state_ests.R";  
+
+}

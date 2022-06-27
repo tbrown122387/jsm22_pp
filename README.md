@@ -2,6 +2,22 @@
 
 This project is organized into a few parts. The most complex part is all of the C++ code. This handles all of the computationally intensive tasks. The rest is a bunch of scripts that either call this code, edit config files for it, or work with output from it. 
 
+## R/
+
+### 1. creating config files
+
+### 2. calculating return data
+
+    - requires `SPY.csv`
+    - transforms all data to returns
+    - subsets a chunk for estimation
+    
+### 3. running MCMC estimation
+
+    - requires data
+    - backs up old param_samples file
+    - writes out a samples file and overwrites the go-to file with this new samples file
+
 ## C++ Code
 
 ### Third-Party Software Requirements

@@ -15,7 +15,7 @@ library(reshape2)
 setwd("~/jsm22_pp/")
 cNames <- c("lw_aux_prior", "lw_aux_csv", "lw2_prior","lw2_csv", "swarm_prior", "swarm_csv", "pf_est")
 outFiles <- paste0(cNames, ".txt")
-outFiles <- paste("data/state_estimates//",outFiles, sep ="")
+outFiles <- paste("data/state_estimates/",outFiles, sep ="")
 allOutput <- as.data.frame(lapply(outFiles, read.csv, header=F))
 #allOutput <- cumsum(allOutput)
 colnames(allOutput) <- cNames

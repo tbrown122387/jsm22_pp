@@ -10,8 +10,9 @@ system("cp data/param_samples.csv data/param_samples.csv.bck")
 # 2. run mcmc
 # (be sure you're happy with all the hardcoded stuff in that 
 # file, that it's all compiled, and that you're cool with config6)
+# last argument in myCmd is ignored...it's really found in the config file
 startTime <- Sys.time()
-myCmd <- './cpp/cmake-build-release/jsmpp_v2 22 data/SPY_returns.csv'
+myCmd <- './cpp/cmake-build-release/jsmpp_v2 22 data/SPY_returns_estimation.csv'
 system(myCmd)
 endTime <- Sys.time()
 
@@ -25,6 +26,6 @@ system(mySecondCmd)
 # 4. write out time taken
 timeTaken <- endTime - startTime
 timeMessage <- paste("the amount of time required to generate the mcmc samples was", timeTaken, "seconds")
-fileConn<-file("mcmc_time_taken.txt")
+fileConn<-file("data/mcmc_time_taken.txt")
 writeLines(timeMessage, fileConn)
 close(fileConn)
