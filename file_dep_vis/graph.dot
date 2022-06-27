@@ -3,6 +3,12 @@ digraph G {
   /* todo: trim config dependencies */
   /* todo: verify that dependencies are handled in Makfiles and scripts aren't sourcing other scripts */
 
+  subgraph cluster_1 {
+    node [style=filled];
+    label = "data_processing";
+    color=green;
+
+
   /* create_configs.R */
   "R/create_configs.R"[shape=star];  
   "data/param_samples.csv" -> "R/create_configs.R";
@@ -18,6 +24,18 @@ digraph G {
   "data/SPY.csv" -> "R/prices_to_returns.R"
   "R/prices_to_returns.R" -> "data/SPY_returns.csv";
   "R/prices_to_returns.R" -> "data/SPY_returns_estimation.csv";
+
+  /* update_csv.R */
+  "R/update_csv.R"[shape=star];  
+  "data/SPY.csv" -> "R/update_csv.R";
+  "R/update_csv.R" -> "data/SPY.csv";
+  "R/update_csv.R" -> "data/SPY.csv.bck";  
+  }
+
+  subgraph cluster_2 {
+    node [style=filled];
+    label = "analysis code";
+    color=red;
 
   /* run_conditional_likes.R */  
   "R/run_conditional_likes.R"[shape=star];  
@@ -63,11 +81,15 @@ digraph G {
   "R/run_state_ests.R" -> "data/state_estimates/swarm_csv.txt";    
   "R/run_state_ests.R" -> "data/state_estimates/pf_est.txt";    
 
-  /* update_csv.R */
-  "R/update_csv.R"[shape=star];  
-  "data/SPY.csv" -> "R/update_csv.R";
-  "R/update_csv.R" -> "data/SPY.csv";
-  "R/update_csv.R" -> "data/SPY.csv.bck";  
+  }
+
+
+
+
+  subgraph cluster_3 {
+    node [style=filled];
+    label = "visualizations";
+    color=blue;
 
   /* vis_conditional_likes.R */
   /* todo: fill in visualization output file names */
@@ -109,5 +131,7 @@ digraph G {
   "data/state_estimates/swarm_prior.txt" -> "R/vis_state_ests.R";    
   "data/state_estimates/swarm_csv.txt" -> "R/vis_state_ests.R";    
   "data/state_estimates/pf_est.txt" -> "R/vis_state_ests.R";  
+
+  }
 
 }
