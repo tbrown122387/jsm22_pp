@@ -19,10 +19,10 @@ outFiles <- paste("data/cond_likes/",outFiles, sep ="")
 allOutput <- as.data.frame(lapply(outFiles, read.csv, header=F))
 colnames(allOutput) <- cNames
 allOutput$time <- seq_along(allOutput[,1])
-allOutput <- allOutput[51:100,]
+#allOutput <- allOutput[51:100,] # temporary line to help visualize stuff by pulling out random chunk
 
 
-pdf("plots/cond_likes_vis/tmp.pdf")
+pdf("plots/cond_likes_vis/clike_vis.pdf")
 mdf <- melt(allOutput, id.vars = "time")
 ggplot(mdf,                            # Draw ggplot2 time series plot
        aes(x = time,

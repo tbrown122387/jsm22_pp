@@ -20,9 +20,9 @@ allOutput <- as.data.frame(lapply(outFiles, read.csv, header=F))
 #allOutput <- cumsum(allOutput)
 colnames(allOutput) <- cNames
 allOutput$day <- seq_along(allOutput[,1])
-allOutput <- allOutput[1:50,]
+#allOutput <- allOutput[1:50,] # if there's too much data it's hard tos ee stuff (this line is temp)
 
-pdf("plots/state_vis/tmp.pdf")
+pdf("plots/state_vis/filter_vis.pdf")
 meltdf <- melt(allOutput,id.var="day")
 ggplot(meltdf,aes(x=day,y=value,colour=variable)) + 
   geom_line() 
