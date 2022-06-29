@@ -21,9 +21,12 @@ colnames(allOutput) <- cNames
 allOutput$time <- seq_along(allOutput[,1])
 allOutput <- allOutput[51:100,]
 
+
+pdf("plots/cond_likes_vis/tmp.pdf")
 mdf <- melt(allOutput, id.vars = "time")
 ggplot(mdf,                            # Draw ggplot2 time series plot
        aes(x = time,
            y = value,
            col = variable)) +
   geom_line()
+dev.off()

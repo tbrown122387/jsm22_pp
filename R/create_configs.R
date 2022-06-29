@@ -3,10 +3,10 @@ phiLow <- .9
 phiHigh <- .99
 muLow <- -.3
 muHigh <- .3
-sigmaLow <- .1
+sigmaLow <- .01
 sigmaHigh <- .5
 rhoLow <- -.9
-rhoHigh <- -.6
+rhoHigh <- -.3
 dte <- 5
 delta <- .99
 paramSamplesFile <- "data/param_samples.csv"
@@ -15,8 +15,9 @@ numMCMCIters <- 100000
 numPFs <- 7
 burn <- 100
 
-# check your highs and lows are consistent with the data 
 setwd("~/jsm22_pp/data/")
+
+## check your highs and lows are consistent with the data 
 d <- read.csv("param_samples.csv", header=F)
 parEstimates <- colMeans(d[(burn+1):nrow(d),])
 phiGood <- (phiLow < parEstimates[1]) & (parEstimates[1] < phiHigh)

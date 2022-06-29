@@ -15,37 +15,37 @@ d$iter <- 1:nrow(d)
 d <- d[-(1:burn),]
 
 # 2. pairwise scatterplot
-pdf("plots/pairwise_scatterplot.pdf")
+pdf("plots/mcmc_vis/pairwise_scatterplot.pdf")
 ggpairs(subset(d, select=-iter), aes(alpha = 0.4))
 dev.off()
 
 # 3. histograms
-pdf("plots/phi_hist.pdf")
+pdf("plots/mcmc_vis/phi_hist.pdf")
 ggplot(d, aes(x=phi)) + 
   geom_histogram() + 
   labs(title='\u03C6 Samples', x='\u03C6 value')
 dev.off()
 
-pdf("plots/mu_hist.pdf")
+pdf("plots/mcmc_vis/mu_hist.pdf")
 ggplot(d, aes(x=mu)) + 
   geom_histogram() + 
   labs(title='\u03BC Samples', x='\u03BC value')
 dev.off()
 
-pdf("plots/sigma_hist.pdf")
+pdf("plots/mcmc_vis/sigma_hist.pdf")
 ggplot(d, aes(x=sigma)) + 
   geom_histogram() + 
   labs(title='\u03C3 Samples', x='\u03C3 value')
 dev.off()
 
-pdf("plots/rho_hist.pdf")
+pdf("plots/mcmc_vis/rho_hist.pdf")
 ggplot(d, aes(x=rho)) + 
   geom_histogram() + 
   labs(title='\u03C1 Samples', x='\u03C1 value')
 dev.off()
 
 # 4. trace plots
-pdf("plots/phi_trace.pdf")
+pdf("plots/mcmc_vis/phi_trace.pdf")
 ggplot(d, aes(x=iter, y=phi)) +  
   geom_line() + 
   labs(title='\u03C6 Trace plot',
@@ -53,7 +53,7 @@ ggplot(d, aes(x=iter, y=phi)) +
        x='iteration')
 dev.off()
 
-pdf("plots/mu_trace.pdf")
+pdf("plots/mcmc_vis/mu_trace.pdf")
 ggplot(d, aes(x=iter, y=mu)) +  
   geom_line() + 
   labs(title='\u03BC Trace plot', 
@@ -61,7 +61,7 @@ ggplot(d, aes(x=iter, y=mu)) +
        x='iteration')
 dev.off()
 
-pdf("plots/sigma_trace.pdf")
+pdf("plots/mcmc_vis/sigma_trace.pdf")
 ggplot(d, aes(x=iter, y=sigma)) +  
   geom_line() +
   labs(title='\u03C3 Trace plot', 
@@ -69,7 +69,7 @@ ggplot(d, aes(x=iter, y=sigma)) +
        x='iteration')
 dev.off()
 
-pdf("plots/rho_trace.pdf")
+pdf("plots/mcmc_vis/rho_trace.pdf")
 ggplot(d, aes(x=iter, y=rho)) +  
   geom_line() +
   labs(title='\u03C1 Trace plot', 
@@ -78,7 +78,7 @@ ggplot(d, aes(x=iter, y=rho)) +
 dev.off()
 
 # 5. correlograms/acf plots
-pdf("plots/phi_acf.pdf")
+pdf("plots/mcmc_vis/phi_acf.pdf")
 acfData <- acf(d[,1], plot=F, lag.max = 100)
 acfData <- data.frame(lag = acfData$lag, acf = acfData$acf)
 ggplot(data = acfData, 
@@ -90,7 +90,7 @@ ggplot(data = acfData,
        x='lag')
 dev.off()
 
-pdf("plots/mu_acf.pdf")
+pdf("plots/mcmc_vis/mu_acf.pdf")
 acfData <- acf(d[,2], plot=F, lag.max = 100)
 acfData <- data.frame(lag = acfData$lag, acf = acfData$acf)
 ggplot(data = acfData, 
@@ -102,7 +102,7 @@ ggplot(data = acfData,
        x='lag')
 dev.off()
 
-pdf("plots/sigma_acf.pdf")
+pdf("plots/mcmc_vis/sigma_acf.pdf")
 acfData <- acf(d[,3], plot=F, lag.max = 100)
 acfData <- data.frame(lag = acfData$lag, acf = acfData$acf)
 ggplot(data = acfData, 
@@ -114,7 +114,7 @@ ggplot(data = acfData,
        x='lag')
 dev.off()
 
-pdf("plots/rho_acf.pdf")
+pdf("plots/mcmc_vis/rho_acf.pdf")
 acfData <- acf(d[,4], plot=F, lag.max = 100)
 acfData <- data.frame(lag = acfData$lag, acf = acfData$acf)
 ggplot(data = acfData, 

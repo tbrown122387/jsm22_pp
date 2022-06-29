@@ -22,7 +22,9 @@ colnames(allOutput) <- cNames
 allOutput$day <- seq_along(allOutput[,1])
 allOutput <- allOutput[1:50,]
 
+pdf("plots/state_vis/tmp.pdf")
 meltdf <- melt(allOutput,id.var="day")
 ggplot(meltdf,aes(x=day,y=value,colour=variable)) + 
   geom_line() 
+dev.off()
 # TODO add vertical bar for out of sample
