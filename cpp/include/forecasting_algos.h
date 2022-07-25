@@ -20,7 +20,8 @@ using namespace pf::resamplers;
 
 
 /**
-* @brief Liu-West filter (sampling parameters from a parameterized
+* @brief Liu-West filter (sa
+ * mpling parameters from a parameterized
 * parameter distribution with a prng, as opposed to drawing
 * unformly from samples that have been saved to a file)
 * parameter order: phi, mu, sigma, rho

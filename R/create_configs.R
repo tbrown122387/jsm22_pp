@@ -1,12 +1,12 @@
 # changes made here will be propogated to many files
-phiLow <- .9
-phiHigh <- .99
-muLow <- -.3
-muHigh <- .3
-sigmaLow <- .01
-sigmaHigh <- .5
-rhoLow <- -.9
-rhoHigh <- -.3
+phiLow <- 0.86370
+phiHigh <- 0.96715
+muLow <- -0.365844
+muHigh <- 0.568138
+sigmaLow <- 0.0442228
+sigmaHigh <- 0.2379350
+rhoLow <- -0.963721
+rhoHigh <- -0.514572
 dte <- 5
 delta <- .99
 paramSamplesFile <- "data/param_samples.csv"

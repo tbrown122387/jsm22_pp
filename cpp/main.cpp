@@ -36,11 +36,13 @@
  * 17. Run the Particle Swarm (bootstrap filters) algorithm for conditional likelihoods (sampling parameters from csv)
  * 18. Run the Particle Swarm (bootstrap filters) algorithm for simulating future observations (sampling parameters from csv)
  *
- * 19. Run standard auxiliary particle filter for state output (with given parameter estimates).
- * 20. Run standard auxiliary particle filter for conditional likelihoods (with given parameter estimates).
- * 21. Run standard auxiliary particle filter for simulating future observations (with given parameter estimates).
+ * 19. Run standard bootstrap particle filter for state output (with given parameter estimates).
+ * 20. Run standard bootstrap particle filter for conditional likelihoods (with given parameter estimates).
+ * 21. Run standard bootstrap particle filter for simulating future observations (with given parameter estimates).
  *
  * 22. Run Pseudo-Marginal Metropolis-Hastings to estimate the parameters of the model on a historical stretch of data.
+ * 23. Store Liu-West1 (original auxiliary style) parameter posterior samples (sampling from noninformative priors at time 1)
+ * 24. Store Liu-West2 parameter posterior samples (sampling from noninformative prior at time 1)
 
  * Note: for run modes 1-21, all models and variables are instantiated regardless of run_mode. This is done to ensure
  * that the difference in program run-time is only attributable to the run-time of algorithm. However, if estimation is
@@ -124,6 +126,12 @@ int main(int argc, char* argv[]){
     ConfigType5<FLOATTYPE> cfg5("configs/config5.csv");
     cfg5.set_config_params(phi, mu, sig, rho, dte);
     svol_leverage<NUMXPARTS,resampT> single_pf(phi, mu, sig, rho, dte); // run mode 19-21
+
+    // option 6: (for run modes 23,24 )
+    // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u
+    svol_lw_1_par<NUMBOTHPARTS> lw1_noninformative(.99, 0.01, .99, -.3, .3, .001, 10, -.99, -.01, 100); 
+    svol_lw_2_par<NUMBOTHPARTS> lw2_noninformative(.99, 0.01, .99, -.3, .3, .001, 10, -.99, -.01, 100); 
+
 
     /////////////////////////////////
     // filter through returns data //
@@ -239,7 +247,7 @@ int main(int argc, char* argv[]){
             // TODO
         }
     }else if( run_mode == 19){
-        //  * 19. Run standard auxiliary particle filter for state output (with given parameter estimates).
+        //  * 19. Run standard bootstrap particle filter for state output (with given parameter estimates).
         std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
         pf_fs.emplace_back([](const ssv& xt, const csv& zt)-> DynMat{
                     return xt;
@@ -250,7 +258,7 @@ int main(int argc, char* argv[]){
             std::cout << single_pf.getExpectations()[0](0,0) << "\n";
         }
     }else if( run_mode == 20){
-        //  * 20. Run standard auxiliary particle filter for conditional likelihoods (with given parameter estimates).
+        //  * 20. Run standard bootstrap particle filter for conditional likelihoods (with given parameter estimates).
         std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
         pf_fs.emplace_back([](const ssv& xt, const csv& zt)-> DynMat{
                     return xt;
@@ -261,7 +269,7 @@ int main(int argc, char* argv[]){
             std::cout << single_pf.getLogCondLike() << "\n";
         }
     }else if( run_mode == 21){
-        //  * 21. Run standard auxiliary particle filter for simulating future observations (with given parameter estimates).
+        //  * 21. Run standard bootstrap particle filter for simulating future observations (with given parameter estimates).
         std::vector<std::function<const DynMat(const ssv&, const csv&)>> pf_fs;
         pf_fs.emplace_back([](const ssv& xt, const csv& zt)-> DynMat{
                     return xt;
@@ -285,9 +293,35 @@ int main(int argc, char* argv[]){
                 num_mcmc_iters,
                 num_pfilters,
                 true); // use multicore?
+    
+    }else if( run_mode == 23){
+        for( unsigned i = 1; i < data.size(); ++i ) {
+            lw1_noninformative.filter(data[i], data[i-1]);
+
+            if( i == 1000){ // todo: unhardcode
+                auto posterior_samples = lw1_noninformative.getParamSamples();
+                for(const auto& theta : posterior_samples)
+                    std::cout << theta.get_untrans_params().transpose() << "\n";
+
+                return 0;
+            }
+        }
+
+    }else if( run_mode == 24){
+        for( unsigned i = 1; i < data.size(); ++i ) {
+            lw2_noninformative.filter(data[i], data[i-1]);
+
+
+            if( i == 1000){ // todo:unhardcode
+                auto posterior_samples = lw2_noninformative.getParamSamples();
+                for(const auto& theta : posterior_samples)
+                    std::cout << theta.get_untrans_params().transpose() << "\n";
+
+                return 0;
+            }
+
+        }
     }
-
-
 
 
 
