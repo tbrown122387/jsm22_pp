@@ -1,4 +1,4 @@
-# visualize MCMC samples in data/param_samples.csv
+# visualize MCMC samples in data/posterior_samps/param_samples.csv
 library(ggplot2)
 library(GGally)
 
@@ -93,7 +93,7 @@ setwd("~/jsm22_pp/")
 burn <- 100
 
 # 1. read in data
-d <- read.csv("data/param_samples.csv", header=F)
+d <- read.csv("data/posterior_samps/param_samples.csv", header=F)
 d[,3] <- sqrt(d[,3])
 colnames(d) <- c("phi","mu","sigma","rho")
 d$iter <- 1:nrow(d)
@@ -214,8 +214,8 @@ dev.off()
 # write out numerical statistics
 acceptRate <- acceptRate(d, burn = burn)
 acceptRateMessage <- paste("accept rate: ", acceptRate)
-rhatsMessage <- paste("rhats: ", rhats("data/param_samples.csv"))
-fileConn<-file("data/mcmc_numerical_diagnostics.txt")
+rhatsMessage <- paste("rhats: ", rhats("data/posterior_samps/param_samples.csv"))
+fileConn<-file("data/posterior_samps/mcmc_numerical_diagnostics.txt")
 writeLines(acceptRateMessage, fileConn)
 writeLines(rhatsMessage, fileConn)
 close(fileConn)

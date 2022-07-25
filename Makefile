@@ -74,7 +74,7 @@ plots/cond_likes_vis/clike_vis.pdf: $(CLIKE_FILTER_TARGETS) R/vis_conditional_li
 
 
 # instructions in R/run_mcmc.R
-data/param_samples.csv data/param_samples.csv.bck data/mcmc_time_taken.txt: R/run_mcmc.R $(cppprog) data/SPY_returns_estimation.csv
+data/posterior_samps/param_samples.csv data/posterior_samps/param_samples.csv.bck data/posterior_samps/mcmc_time_taken.txt: R/run_mcmc.R $(cppprog) data/SPY_returns_estimation.csv
 	@echo "\n## running MCMC"
 	Rscript R/run_mcmc.R
 
@@ -102,7 +102,7 @@ data/SPY_returns_estimation.csv data/SPY_returns.csv: R/prices_to_returns.R data
 	Rscript R/prices_to_returns.R
 
 # R/create_configs.R
-configs/*.csv: R/create_configs.R data/param_samples.csv
+configs/*.csv: R/create_configs.R data/posterior_samps/param_samples.csv
 	@echo "\n## updating config files"
 	Rscript R/create_configs.R
 

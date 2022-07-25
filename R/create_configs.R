@@ -9,7 +9,7 @@ rhoLow <- -0.963721
 rhoHigh <- -0.514572
 dte <- 5
 delta <- .99
-paramSamplesFile <- "data/param_samples.csv"
+paramSamplesFile <- "data/posterior_samps/param_samples.csv"
 estDataFile <- "data/SPY_returns_estimation.csv"
 numMCMCIters <- 100000
 numPFs <- 7
