@@ -7,9 +7,10 @@ setwd("~/jsm22_pp/")
 
 prog <- "./cpp/cmake-build-release/jsmpp_v2"
 runModes <- c(23, 24) # see above
-dataPath <- "./data/SPY_returns.csv"
+dataPath <- "./data/SPY_returns.csv" #doesn't matter because hardcoded
 outFiles <- c("lw_aux_posterior.txt", "lw2_prior_posterior.txt")
 outFiles <- paste("data/posterior_samps/",outFiles, sep ="")
+
 
 for(idx in seq_along(runModes)){
   cmd <- paste(prog, runModes[idx], dataPath, '>', outFiles[idx])

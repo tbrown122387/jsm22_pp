@@ -28,8 +28,11 @@ CLIKE_FILTER_TARGETS = data/cond_likes/lw_aux_prior.txt \
 					   data/cond_likes/swarm_csv.txt \
 					   data/cond_likes/pf_est.txt 
 
+LW_POSTERIOR_TARGETS = data/posterior_samps/lw_aux_posterior.txt \
+					   data/posterior_samps/lw2_prior_posterior.txt
+
 .PHONY: run_filters
-run_filters: $(STATE_FILTER_TARGETS) $(CLIKE_FILTER_TARGETS)
+run_filters: $(STATE_FILTER_TARGETS) $(CLIKE_FILTER_TARGETS) $(LW_POSTERIOR_TARGETS)
 
 
 ## Run all of the visualization scripts, checking for up-to-date dep.s first
@@ -53,7 +56,7 @@ run_shiny:
 ##############################
 
 # instructions in R/vis_mcmc_samps.R
-plots/mcmc_vis/* data/mcmc_numerical_diagnostics.txt : data/param_samples.csv R/vis_mcmc_samps.R
+plots/mcmc_vis/* data/mcmc_numerical_diagnostics.txt : data/posterior_samps/param_samples.csv R/vis_mcmc_samps.R $(LW_POSTERIOR_TARGETS)
 	echo "\n## running MCMC visualization code"
 	Rscript R/vis_mcmc_samps.R
 
@@ -88,6 +91,10 @@ $(STATE_FILTER_TARGETS): R/run_state_ests.R data/SPY_returns.csv configs/* $(cpp
 	@echo "\n### running state estimates"
 	Rscript R/run_state_ests.R
 
+# instructions in R/run_lw_posterior_samples.R
+$(LW_POSTERIOR_TARGETS): R/run_lw_posterior_samples.R data/SPY_returns_estimation.csv $(cppprog)
+	@echo "\n### running lw filter to get posterior samples"
+	Rscript R/run_lw_posterior_samples.R
 
 #data/forecast_samps.csv: SPY.csv SPY_returns.csv param_samples.csv 
 #	./forecasting/build_all_cpp.sh

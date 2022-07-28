@@ -80,6 +80,7 @@ int main(int argc, char* argv[]){
 
     // get data
     auto data = readInData<FLOATTYPE>(data_filename, ',');
+    auto train_data = readInData<FLOATTYPE>("data/SPY_returns_estimation.csv", ',');
 
     // define filtering function that will be used for all algorithms
     std::vector<func> fs;
@@ -295,37 +296,23 @@ int main(int argc, char* argv[]){
                 true); // use multicore?
     
     }else if( run_mode == 23){
-        for( unsigned i = 1; i < data.size(); ++i ) {
+        for( unsigned i = 1; i < train_data.size(); ++i ) {
             lw1_noninformative.filter(data[i], data[i-1]);
-
-            if( i == 1000){ // todo: unhardcode
-                auto posterior_samples = lw1_noninformative.getParamSamples();
-                for(const auto& theta : posterior_samples)
-                    std::cout << theta.get_untrans_params().transpose() << "\n";
-
-                return 0;
-            }
         }
+        
+        auto posterior_samples = lw1_noninformative.getParamSamples();
+        for(const auto& theta : posterior_samples)
+            std::cout << theta.get_untrans_params().transpose() << "\n";
 
     }else if( run_mode == 24){
-        for( unsigned i = 1; i < data.size(); ++i ) {
+        for( unsigned i = 1; i < train_data.size(); ++i ) {
             lw2_noninformative.filter(data[i], data[i-1]);
-
-
-            if( i == 1000){ // todo:unhardcode
-                auto posterior_samples = lw2_noninformative.getParamSamples();
-                for(const auto& theta : posterior_samples)
-                    std::cout << theta.get_untrans_params().transpose() << "\n";
-
-                return 0;
-            }
-
         }
+        
+        auto posterior_samples = lw2_noninformative.getParamSamples();
+        for(const auto& theta : posterior_samples)
+            std::cout << theta.get_untrans_params().transpose() << "\n";
     }
-
-
-
-
 
 
 

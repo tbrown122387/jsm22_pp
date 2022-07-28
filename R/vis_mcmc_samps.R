@@ -92,12 +92,16 @@ acceptRate <- function(df, burn=0){
 setwd("~/jsm22_pp/")
 burn <- 100
 
-# 1. read in data
+# 1. read in data sets
 d <- read.csv("data/posterior_samps/param_samples.csv", header=F)
 d[,3] <- sqrt(d[,3])
 colnames(d) <- c("phi","mu","sigma","rho")
 d$iter <- 1:nrow(d)
 d <- d[-(1:burn),]
+lw_post <- read.csv("data/posterior_samps/lw_aux_posterior.txt", header=F, sep = "")
+lw2_post <- read.csv("data/posterior_samps/lw2_prior_posterior.txt", header=F, sep = "")
+colnames(lw2_post) <- c("phi", 'mu', 'sigma','rho')
+colnames(lw_post) <- c("phi", 'mu', 'sigma','rho')
 
 # 2. pairwise scatterplot
 pdf("plots/mcmc_vis/pairwise_scatterplot.pdf")
@@ -210,6 +214,63 @@ ggplot(data = acfData,
        y=' estimated autocorrelation',
        x='lag')
 dev.off()
+
+# comparing liu-west posterior to mcmc samps
+pdf("plots/mcmc_vis/phi_post_comparison.pdf")
+phi_samps_threeways <- data.frame(samps = c(d[,1], lw_post[,1], lw2_post[,1]))
+phi_samps_threeways$method = c(
+  rep("mcmc: phi", nrow(d)),
+  rep("lw: phi", nrow(lw_post)),
+  rep("lw2: phi", nrow(lw2_post))
+)
+ggplot(phi_samps_threeways, aes(samps, fill = method)) +
+  geom_histogram(position = "identity", alpha = 0.5,
+                 mapping = aes(y = stat(density)))
+dev.off()
+
+
+# comparing liu-west posterior to mcmc samps
+pdf("plots/mcmc_vis/mu_post_comparison.pdf")
+mu_samps_threeways <- data.frame(samps = c(d[,2], lw_post[,2], lw2_post[,2]))
+mu_samps_threeways$method = c(
+  rep("mcmc: mu", nrow(d)),
+  rep("lw: mu", nrow(lw_post)),
+  rep("lw2: mu", nrow(lw2_post))
+)
+ggplot(mu_samps_threeways, aes(samps, fill = method)) +
+  geom_histogram(position = "identity", alpha = 0.5,
+                 mapping = aes(y = stat(density)))
+dev.off()
+
+
+# comparing liu-west posterior to mcmc samps
+pdf("plots/mcmc_vis/sigma_post_comparison.pdf")
+sigma_samps_threeways <- data.frame(samps = c(d[,3], lw_post[,3], lw2_post[,3]))
+sigma_samps_threeways$method = c(
+  rep("mcmc: sigma", nrow(d)),
+  rep("lw: sigma", nrow(lw_post)),
+  rep("lw2: sigma", nrow(lw2_post))
+)
+ggplot(sigma_samps_threeways, aes(samps, fill = method)) +
+  geom_histogram(position = "identity", alpha = 0.5,
+                 mapping = aes(y = stat(density)))
+dev.off()
+
+
+# comparing liu-west posterior to mcmc samps
+pdf("plots/mcmc_vis/rho_post_comparison.pdf")
+rho_samps_threeways <- data.frame(samps = c(d[,4], lw_post[,4], lw2_post[,4]))
+rho_samps_threeways$method = c(
+  rep("mcmc: rho", nrow(d)),
+  rep("lw: rho", nrow(lw_post)),
+  rep("lw2: rho", nrow(lw2_post))
+)
+ggplot(rho_samps_threeways, aes(samps, fill = method)) +
+  geom_histogram(position = "identity", alpha = 0.5,
+                 mapping = aes(y = stat(density)))
+dev.off()
+
+
 
 # write out numerical statistics
 acceptRate <- acceptRate(d, burn = burn)
