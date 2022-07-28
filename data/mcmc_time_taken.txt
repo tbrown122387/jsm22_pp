@@ -1,1 +1,0 @@
-the amount of time required to generate the mcmc samples was 1.89501501964198 seconds

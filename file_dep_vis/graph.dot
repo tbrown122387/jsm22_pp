@@ -11,7 +11,7 @@ digraph G {
 
   /* create_configs.R */
   "R/create_configs.R"[shape=star];  
-  "data/param_samples.csv" -> "R/create_configs.R";
+  "data/posterior_samps/param_samples.csv" -> "R/create_configs.R";
   "R/create_configs.R" -> "configs/config1.csv";
   "R/create_configs.R" -> "configs/config2.csv";
   "R/create_configs.R" -> "configs/config3.csv"; 
@@ -59,10 +59,19 @@ digraph G {
   "R/run_mcmc.R"[shape=star];  
   "cpp_program" -> "R/run_mcmc.R";
   "data/SPY_returns_estimation.csv" -> "R/run_mcmc.R";
-  "R/run_mcmc.R" -> "data/param_samples.csv";
-  "R/run_mcmc.R" -> "data/param_samples.csv.bck";
-  "R/run_mcmc.R" -> "data/mcmc_time_taken.txt";
-
+  "R/run_mcmc.R" -> "data/posterior_samps/param_samples.csv";
+  "R/run_mcmc.R" -> "data/posterior_samps/param_samples.csv.bck";
+  "R/run_mcmc.R" -> "data/posterior_samps/mcmc_time_taken.txt";
+  "R/run_mcmc.R" -> "data/posterior_samps/lw_aux_posterior.txt";
+  "R/run_mcmc.R" -> "data/posterior_samps/lw2_prior_posterior.txt";
+  
+  /* run_lw_posterior_samples.R */
+  "R/run_lw_posterior_samples.R"[shape=star];  
+  "data/SPY_returns_estimation.csv" -> "R/run_lw_posterior_samples.R";
+  "R/run_lw_posterior_samples.R" -> "data/posterior_samps/lw_aux_posterior.txt";
+  "R/run_lw_posterior_samples.R" -> "data/posterior_samps/lw2_prior_posterior.txt";
+  
+  
   /* run_state_ests.R */
   "R/run_state_ests.R"[shape=star];  
   "configs/config1.csv" -> "R/run_state_ests.R";
@@ -105,7 +114,9 @@ digraph G {
   /* vis_mcmc_samps.R */
   /* todo: fill in visualization output file names */
   "R/vis_mcmc_samps.R"[shape=star];  
-  "data/param_samples.csv" -> "R/vis_mcmc_samps.R";
+  "data/posterior_samps/param_samples.csv" -> "R/vis_mcmc_samps.R";
+  "data/posterior_samps/lw_aux_posterior.csv" -> "R/vis_mcmc_samps.R";
+  "data/posterior_samps/lw2_prior_posterior.csv" -> "R/vis_mcmc_samps.R";
   "R/vis_mcmc_samps.R" -> "plots/pairwise_scatterplot.pdf";
   "R/vis_mcmc_samps.R" -> "plots/phi_hist.pdf";
   "R/vis_mcmc_samps.R" -> "plots/mu_hist.pdf";
@@ -119,7 +130,11 @@ digraph G {
   "R/vis_mcmc_samps.R" -> "plots/mu_acf.pdf";  
   "R/vis_mcmc_samps.R" -> "plots/sigma_acf.pdf";
   "R/vis_mcmc_samps.R" -> "plots/rho_acf.pdf";
-  "R/vis_mcmc_samps.R" -> "data/mcmc_numerical_diagnostics.txt";
+  "R/vis_mcmc_samps.R" -> "plots/phi_post_comparison.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/mu_post_comparison.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/sigma_post_comparison.pdf";
+  "R/vis_mcmc_samps.R" -> "plots/rho_post_comparison.pdf";
+  "R/vis_mcmc_samps.R" -> "data/posterior_samps/mcmc_numerical_diagnostics.txt";
   
   /* vis_state_ests.R */
   /* todo: fill in visualization output file names */
