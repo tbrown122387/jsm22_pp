@@ -2,7 +2,7 @@ library(quantmod)
 library(xts)
 
 # get old and new data
-getSymbols("SPY")
+getSymbols("SPY", from = as.Date("2010-01-01"))
 
 oldDataExists <- file.exists("data/SPY.csv")
 if( oldDataExists ){

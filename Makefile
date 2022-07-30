@@ -7,7 +7,7 @@ all: refresh_data run_filters run_vis
 
 ## Refresh and prepare all data
 .PHONY: refresh_data
-refresh_data: data/SPY_returns* 
+refresh_data: data/SPY.csv data/SPY_returns.csv 
 
 
 ## Run all of the filters on all returns data
@@ -77,7 +77,7 @@ plots/cond_likes_vis/clike_vis.pdf: $(CLIKE_FILTER_TARGETS) R/vis_conditional_li
 
 
 # instructions in R/run_mcmc.R
-data/posterior_samps/param_samples.csv data/posterior_samps/param_samples.csv.bck data/posterior_samps/mcmc_time_taken.txt: R/run_mcmc.R $(cppprog) data/SPY_returns_estimation.csv
+data/posterior_samps/param_samples.csv data/posterior_samps/param_samples.csv.bck data/posterior_samps/mcmc_time_taken.txt: R/run_mcmc.R data/SPY_returns_estimation.csv
 	@echo "\n## running MCMC"
 	Rscript R/run_mcmc.R
 

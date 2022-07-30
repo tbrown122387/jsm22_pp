@@ -18,7 +18,7 @@ cNames <- c("lw_aux_prior", "lw_aux_csv", "lw2_prior","lw2_csv", "swarm_prior", 
 outFiles <- paste0(cNames, ".txt")
 outFiles <- paste("data/state_estimates/",outFiles, sep ="")
 allOutput <- as.data.frame(lapply(outFiles, read.csv, header=F))
-
+returns <- read.csv("data/SPY_returns.csv", header=F)[,1]
 
 ## remove filtering output on data on and before training data
 # warning: the following variable is based off of something 
@@ -31,26 +31,25 @@ allOutput <- allOutput[-(1:numCondLikesToDisregard),]
 colnames(allOutput) <- cNames
 allOutput$day <- seq_along(allOutput[,1])
 
-# get actual return data
-returns <- read.csv("data/SPY_returns.csv", header=F)[,1]
-n <- length(returns)
-returns <- returns[(n - nrow(allOutput)+1):n]
+# make the same adjustment on return data
+numExtraReturns <- length(returns) - nrow(allOutput)
+returns <- returns[-(1:numExtraReturns)]
 returns <- data.frame('returns' = returns, 'day' = seq_along(returns))
+
 
 # make vis
 pdf("plots/state_vis/filter_vis.pdf")
 meltdf <- melt(allOutput,id.var="day")
 ggplot(meltdf,aes(x=day,y=value,colour=variable)) + 
   geom_line() +
-  scale_y_continuous("log-volatility") +
-  ggtitle("filtered log volatility on test data")
+  scale_y_continuous("log-volatility") 
 dev.off()
 
 
 pdf("plots/state_vis/test_returns.pdf")
 ggplot(returns,aes(x=day,y=returns)) + 
-  geom_line() +
+  geom_line() 
   #geom_line(aes(y = a + returns*b), color = "red") +
   #scale_y_continuous("log-volatility", sec.axis = sec_axis(~ (. - a)/b, name = "returns")) +
-  ggtitle("returns in test data")
+  # ggtitle("returns in test data")
 dev.off()

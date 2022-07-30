@@ -41,8 +41,8 @@
  * 21. Run standard bootstrap particle filter for simulating future observations (with given parameter estimates).
  *
  * 22. Run Pseudo-Marginal Metropolis-Hastings to estimate the parameters of the model on a historical stretch of data.
- * 23. Store Liu-West1 (original auxiliary style) parameter posterior samples (sampling from noninformative priors at time 1)
- * 24. Store Liu-West2 parameter posterior samples (sampling from noninformative prior at time 1)
+ * 23. Store Liu-West1 (original auxiliary style) parameter posterior samples (sampling from noninformative priors at time 1). Run 100 times and stack output vertically.
+ * 24. Store Liu-West2 parameter posterior samples (sampling from noninformative prior at time 1). Run 100 times and stack output vertically.
 
  * Note: for run modes 1-21, all models and variables are instantiated regardless of run_mode. This is done to ensure
  * that the difference in program run-time is only attributable to the run-time of algorithm. However, if estimation is
@@ -128,10 +128,6 @@ int main(int argc, char* argv[]){
     cfg5.set_config_params(phi, mu, sig, rho, dte);
     svol_leverage<NUMXPARTS,resampT> single_pf(phi, mu, sig, rho, dte); // run mode 19-21
 
-    // option 6: (for run modes 23,24 )
-    // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u
-    svol_lw_1_par<NUMBOTHPARTS> lw1_noninformative(.99, 0.01, .99, -.3, .3, .001, 10, -.99, -.01, 100); 
-    svol_lw_2_par<NUMBOTHPARTS> lw2_noninformative(.99, 0.01, .99, -.3, .3, .001, 10, -.99, -.01, 100); 
 
 
     /////////////////////////////////
@@ -296,22 +292,42 @@ int main(int argc, char* argv[]){
                 true); // use multicore?
     
     }else if( run_mode == 23){
-        for( unsigned i = 1; i < train_data.size(); ++i ) {
-            lw1_noninformative.filter(data[i], data[i-1]);
-        }
         
-        auto posterior_samples = lw1_noninformative.getParamSamples();
-        for(const auto& theta : posterior_samples)
-            std::cout << theta.get_untrans_params().transpose() << "\n";
+        // 23. Store Liu-West1 (original auxiliary style) parameter posterior samples (sampling from noninformative priors at time 1). Run 100 times and stack output vertically.
+        for( unsigned replicant = 0; replicant < 100; ++replicant){
+
+            // instantiate filter object 
+            // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u
+            svol_lw_1_par<NUMBOTHPARTS> lw1_noninformative(.99, 0.01, .99, -.3, .3, .001, 10, -.99, -.01, 100); 
+               
+            // run through the entire training data set
+            for( unsigned i = 1; i < train_data.size(); ++i ) 
+                lw1_noninformative.filter(data[i], data[i-1]);
+        
+            // at the end, spit out the most up-to-date param samples
+            auto posterior_samples = lw1_noninformative.getParamSamples();
+            for(const auto& theta : posterior_samples)
+                std::cout << theta.get_untrans_params().transpose() << "\n";
+        }
 
     }else if( run_mode == 24){
-        for( unsigned i = 1; i < train_data.size(); ++i ) {
-            lw2_noninformative.filter(data[i], data[i-1]);
-        }
+       
+        // 24. Store Liu-West2 parameter posterior samples (sampling from noninformative prior at time 1). Run 100 times and stack output vertically.
+        for( unsigned replicant = 0; replicant < 100; ++replicant){
+            
+            // instantiate filter object
+            // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u
+            svol_lw_2_par<NUMBOTHPARTS> lw2_noninformative(.99, 0.01, .99, -.3, .3, .001, 10, -.99, -.01, 100); 
+
+            // run through the entire training data set
+            for( unsigned i = 1; i < train_data.size(); ++i ) 
+                lw2_noninformative.filter(data[i], data[i-1]);
         
-        auto posterior_samples = lw2_noninformative.getParamSamples();
-        for(const auto& theta : posterior_samples)
-            std::cout << theta.get_untrans_params().transpose() << "\n";
+            // at the end, spit out the most up-to-date param samples
+            auto posterior_samples = lw2_noninformative.getParamSamples();
+            for(const auto& theta : posterior_samples)
+                std::cout << theta.get_untrans_params().transpose() << "\n";
+        }
     }
 
 

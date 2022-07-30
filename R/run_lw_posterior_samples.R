@@ -1,6 +1,6 @@
-# * 23. Store Liu-West1 (original auxiliary style) parameter posterior samples (sampling from noninformative priors at time 1)
-# * 24. Store Liu-West2 parameter posterior samples (sampling from noninformative prior at time 1)
-
+# * 23. Store Liu-West1 (original auxiliary style) parameter posterior samples (sampling from noninformative priors at time 1) Run 100 times and stack results vertically
+# * 24. Store Liu-West2 parameter posterior samples (sampling from noninformative prior at time 1) Run 100 times and stack results vertically
+ 
 # TODO make this happen in Makefile
 # have to change directory because some filepaths are hardcoded relative style
 setwd("~/jsm22_pp/")

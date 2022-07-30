@@ -3,7 +3,6 @@ library(ggplot2)
 library(GGally)
 
 
-
 #' A Gelman-Rubin convergence diagnostic function.
 #'
 #' This function calculates the Gelman-Rubin convergence diagnostic (Rhat) on some samples.
@@ -91,6 +90,7 @@ acceptRate <- function(df, burn=0){
 
 setwd("~/jsm22_pp/")
 burn <- 100
+num_lw_particles <- 500
 
 # 1. read in data sets
 d <- read.csv("data/posterior_samps/param_samples.csv", header=F)
@@ -98,10 +98,18 @@ d[,3] <- sqrt(d[,3])
 colnames(d) <- c("phi","mu","sigma","rho")
 d$iter <- 1:nrow(d)
 d <- d[-(1:burn),]
-lw_post <- read.csv("data/posterior_samps/lw_aux_posterior.txt", header=F, sep = "")
-lw2_post <- read.csv("data/posterior_samps/lw2_prior_posterior.txt", header=F, sep = "")
+all_lw_post <- read.csv("data/posterior_samps/lw_aux_posterior.txt", header=F, sep = "")
+all_lw2_post <- read.csv("data/posterior_samps/lw2_prior_posterior.txt", header=F, sep = "")
+lw_post <- all_lw_post[1:num_lw_particles,] # take first replication
+lw2_post <- all_lw2_post[1:num_lw_particles,]
+
+colnames(all_lw2_post) <- c("phi", 'mu', 'sigma','rho')
+colnames(all_lw_post) <- c("phi", 'mu', 'sigma','rho')
 colnames(lw2_post) <- c("phi", 'mu', 'sigma','rho')
 colnames(lw_post) <- c("phi", 'mu', 'sigma','rho')
+
+all_lw_post$repl <- as.character(rep(1:100, each = num_lw_particles))
+all_lw2_post$repl <- as.character(rep(1:100, each = num_lw_particles))
 
 # 2. pairwise scatterplot
 pdf("plots/mcmc_vis/pairwise_scatterplot.pdf")
@@ -269,6 +277,76 @@ ggplot(rho_samps_threeways, aes(samps, fill = method)) +
   geom_histogram(position = "identity", alpha = 0.5,
                  mapping = aes(y = stat(density)))
 dev.off()
+
+
+# comparing multiple runs of liu-west filter 1
+pdf("plots/mcmc_vis/phi_lw1_posts.pdf")
+ggplot(all_lw_post, aes(x = repl, y = phi)) +            
+  geom_boxplot() +
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank() 
+  )
+dev.off()
+
+pdf("plots/mcmc_vis/mu_lw1_posts.pdf")
+ggplot(all_lw_post, aes(x = repl, y = mu)) +            
+  geom_boxplot() +
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank() 
+  )
+dev.off()
+
+pdf("plots/mcmc_vis/sigma_lw1_posts.pdf")
+ggplot(all_lw_post, aes(x = repl, y = sigma)) +            
+  geom_boxplot() +
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank() 
+  )
+dev.off()
+
+pdf("plots/mcmc_vis/rho_lw1_posts.pdf")
+ggplot(all_lw_post, aes(x = repl, y = rho)) +            
+  geom_boxplot() +
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank() 
+  )
+dev.off()
+
+
+
+# comparing multiple runs of liu-west filter 2
+pdf("plots/mcmc_vis/phi_lw2_posts.pdf")
+ggplot(all_lw2_post, aes(x = repl, y = phi)) +            
+  geom_boxplot() +
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank() 
+  )
+dev.off()
+
+pdf("plots/mcmc_vis/mu_lw2_posts.pdf")
+ggplot(all_lw2_post, aes(x = repl, y = mu)) +            
+  geom_boxplot() +
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank() 
+  )
+dev.off()
+
+pdf("plots/mcmc_vis/sigma_lw2_posts.pdf")
+ggplot(all_lw2_post, aes(x = repl, y = sigma)) +            
+  geom_boxplot() +
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank() 
+  )
+dev.off()
+
+pdf("plots/mcmc_vis/rho_lw2_posts.pdf")
+ggplot(all_lw2_post, aes(x = repl, y = rho)) +            
+  geom_boxplot() +
+  theme(axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank() 
+  )
+dev.off()
+
 
 
 

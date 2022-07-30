@@ -15,7 +15,7 @@ library(ggtern)
 
 ## have to change directory because some filepaths are hardcoded relative style
 setwd("~/jsm22_pp/")
-cNames <- c("lw_aux_prior", "lw_aux_csv", "lw2_prior","lw2_csv", "swarm_prior", "swarm_csv", "pf_est")
+cNames <- c("lw_aux_prior","lw_aux_csv", "lw2_prior","lw2_csv", "swarm_prior", "swarm_csv", "pf_est")
 outFiles <- paste0(cNames, ".txt")
 outFiles <- paste("data/cond_likes/",outFiles, sep ="")
 allOutput <- as.data.frame(lapply(outFiles, read.csv, header=F))
@@ -28,7 +28,7 @@ numDaysToDisregard <- sum(index(read.csv.zoo("data/SPY.csv", header=T)) < testPr
 numCondLikesToDisregard <- numDaysToDisregard - 2 
 # ^ one for conversion from prices to returns, and one from the lagged predictor
 allOutput <- allOutput[-(1:numCondLikesToDisregard),]
-colnames(allOutput) <- cNames
+colnames(allOutput) <- c("lw_v1_uniform_sampling", "lw_v1_csv_sampling", "lw_v2_uniform_sampling","lw_v2_csv_sampling", "swarm_uniform_sampling", "swarm_csv_sampling", "pfilter_estimate")
 allOutput$time <- seq_along(allOutput[,1])
 
 ## create a cumulative sum data set
@@ -57,11 +57,11 @@ dev.off()
 
 
 pdf("plots/cond_likes_vis/clike_ternary_vis_uniforms.pdf")
-uniformPriorLLs <- data.frame(allOutput$lw_aux_prior, allOutput$lw2_prior, allOutput$swarm_prior)
+uniformPriorLLs <- data.frame(allOutput$lw_v1_uniform_sampling, allOutput$lw_v2_uniform_sampling, allOutput$swarm_uniform_sampling)
 uniformPriorLLs <- exp(uniformPriorLLs)/rowSums(exp(uniformPriorLLs))
-colnames(uniformPriorLLs) <- c("lw_aux", "lw_v2", "p_swarm")
+colnames(uniformPriorLLs) <- c('lw1', 'lw2', 'p_swarm')
 time <- 1:nrow(allOutput)
-ggtern(data=uniformPriorLLs,aes(lw_v2, lw_aux, p_swarm)) + 
+ggtern(data=uniformPriorLLs,aes(lw1, lw2, p_swarm)) + 
   geom_mask() +
   geom_path(aes(colour = time, alpha = .01)) +
   theme_bw() +
@@ -70,11 +70,11 @@ dev.off()
 
 
 pdf("plots/cond_likes_vis/clike_ternary_vis_csv.pdf")
-csvSampsLLs <- data.frame(allOutput$lw_aux_csv, allOutput$lw2_csv, allOutput$swarm_csv)
+csvSampsLLs <- data.frame(allOutput$lw_v1_csv_sampling, allOutput$lw_v2_csv_sampling, allOutput$swarm_csv_sampling)
 csvSampsLLs <- exp(csvSampsLLs)/rowSums(exp(csvSampsLLs))
-colnames(csvSampsLLs) <- c("lw_aux", "lw_v2", "p_swarm")
+colnames(csvSampsLLs) <- c("lw1", "lw2", "p_swarm")
 time <- 1:nrow(allOutput)
-ggtern(data=csvSampsLLs,aes(lw_v2, lw_aux, p_swarm)) + 
+ggtern(data=csvSampsLLs,aes(lw1, lw2, p_swarm)) + 
   geom_mask() +
   geom_path(aes(colour = time, alpha = .01)) +
   theme_bw() +
