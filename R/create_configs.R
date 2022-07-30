@@ -18,7 +18,7 @@ burn <- 100
 setwd("~/jsm22_pp/data/")
 
 ## check your highs and lows are consistent with the data 
-d <- read.csv("param_samples.csv", header=F)
+d <- read.csv("posterior_samps/param_samples.csv", header=F)
 parEstimates <- colMeans(d[(burn+1):nrow(d),])
 phiGood <- (phiLow < parEstimates[1]) & (parEstimates[1] < phiHigh)
 muGood <- (muLow < parEstimates[2]) & (parEstimates[2] < muHigh)

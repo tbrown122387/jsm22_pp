@@ -102,14 +102,19 @@ all_lw_post <- read.csv("data/posterior_samps/lw_aux_posterior.txt", header=F, s
 all_lw2_post <- read.csv("data/posterior_samps/lw2_prior_posterior.txt", header=F, sep = "")
 lw_post <- all_lw_post[1:num_lw_particles,] # take first replication
 lw2_post <- all_lw2_post[1:num_lw_particles,]
-
 colnames(all_lw2_post) <- c("phi", 'mu', 'sigma','rho')
 colnames(all_lw_post) <- c("phi", 'mu', 'sigma','rho')
 colnames(lw2_post) <- c("phi", 'mu', 'sigma','rho')
 colnames(lw_post) <- c("phi", 'mu', 'sigma','rho')
+all_lw_post <- rbind(all_lw_post, d[,1:4])
+all_lw2_post <- rbind(all_lw2_post, d[,1:4])
 
-all_lw_post$repl <- as.character(rep(1:100, each = num_lw_particles))
-all_lw2_post$repl <- as.character(rep(1:100, each = num_lw_particles))
+all_lw_post$repl <- c(
+                      as.character(rep(1:100, each = num_lw_particles)),
+                      rep("mcmc", nrow(d)))
+all_lw2_post$repl <- c(
+                       as.character(rep(1:100, each = num_lw_particles)),
+                       rep("mcmc", nrow(d)))
 
 # 2. pairwise scatterplot
 pdf("plots/mcmc_vis/pairwise_scatterplot.pdf")
@@ -280,6 +285,9 @@ dev.off()
 
 
 # comparing multiple runs of liu-west filter 1
+all_lw_post$isMCMC <- all_lw_post$repl == "mcmc"
+all_lw2_post$isMCMC <- all_lw2_post$repl=="mcmc"
+
 pdf("plots/mcmc_vis/phi_lw1_posts.pdf")
 ggplot(all_lw_post, aes(x = repl, y = phi)) +            
   geom_boxplot() +
@@ -340,7 +348,7 @@ ggplot(all_lw2_post, aes(x = repl, y = sigma)) +
 dev.off()
 
 pdf("plots/mcmc_vis/rho_lw2_posts.pdf")
-ggplot(all_lw2_post, aes(x = repl, y = rho)) +            
+ggplot(all_lw2_post, aes(x = repl, y = rho, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 

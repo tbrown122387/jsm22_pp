@@ -11,7 +11,6 @@ refresh_data: data/SPY.csv data/SPY_returns.csv
 
 
 ## Run all of the filters on all returns data
-# TODO: add forecasting bit when it becomes available
 STATE_FILTER_TARGETS = data/state_estimates/lw_aux_prior.txt \
 					   data/state_estimates/lw_aux_csv.txt \
 					   data/state_estimates/lw2_prior.txt\
@@ -43,7 +42,7 @@ run_vis: plots/mcmc_vis/* plots/state_vis/filter_vis.pdf plots/cond_likes_vis/cl
 ## remove all target, output and extraneous files
 .PHONY: clean
 clean: 	
-	rm -f *~ *.Rout *.RData *.docx *.pdf *.html *.RData ./messages_* ./samples_* $(STATE_FILTER_TARGETS) $(CLIKE_FILTER_TARGETS)
+	rm -f *~ *.Rout *.RData *.docx *.pdf *.html *.RData ./messages_* ./samples_* $(STATE_FILTER_TARGETS) $(CLIKE_FILTER_TARGETS) data/SPY*
 
 ## run the shiny applet 
 .PHONY: run_shiny
