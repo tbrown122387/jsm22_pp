@@ -8,3 +8,4 @@ cpp/cmake-build-debug/*
 cpp/cmake-build-release/*
 .RData
 .Rhistory
+.idea/
