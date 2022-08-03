@@ -1,8 +1,0 @@
-auxiliary/regular liu-west filter, the prop_mu function, it does depend on covariates. This could be a rason to not use the "alternate" version of the LW filter.
-
-Regarding the above, simulating future observations is not a procedure that is defined by the original authors
-
-Also, using covariates is not a procedure described in the original paper.
-
-One advantage of the swarm is that you can use different number of particles for state versus parameters...might be
-advantageous if parameter space is higher-dimensional, for instance.

@@ -9,3 +9,4 @@ cpp/cmake-build-release/*
 .RData
 .Rhistory
 .idea/
+writeup/
