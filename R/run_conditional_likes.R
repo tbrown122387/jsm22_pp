@@ -6,7 +6,7 @@
 # * 11. Run the Liu-West2 filter for conditional likelihoods (sampling parameters from csv)
 # * 14. Run the Particle Swarm (bootstrap filters) algorithm for conditional likelihoods (sampling parameters from prior)
 # * 17. Run the Particle Swarm (bootstrap filters) algorithm for conditional likelihoods (sampling parameters from csv)
-# * 20. Run standard auxiliary particle filter for conditional likelihoods (with given parameter estimates).
+# * 20. Run standard bootstrap particle filter for conditional likelihoods (with given parameter estimates).
 # */
 
 

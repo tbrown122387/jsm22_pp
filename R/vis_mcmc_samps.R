@@ -289,7 +289,7 @@ all_lw_post$isMCMC <- all_lw_post$repl == "mcmc"
 all_lw2_post$isMCMC <- all_lw2_post$repl=="mcmc"
 
 pdf("plots/mcmc_vis/phi_lw1_posts.pdf")
-ggplot(all_lw_post, aes(x = repl, y = phi)) +            
+ggplot(all_lw_post, aes(x = repl, y = phi, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
@@ -297,7 +297,7 @@ ggplot(all_lw_post, aes(x = repl, y = phi)) +
 dev.off()
 
 pdf("plots/mcmc_vis/mu_lw1_posts.pdf")
-ggplot(all_lw_post, aes(x = repl, y = mu)) +            
+ggplot(all_lw_post, aes(x = repl, y = mu, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
@@ -305,7 +305,7 @@ ggplot(all_lw_post, aes(x = repl, y = mu)) +
 dev.off()
 
 pdf("plots/mcmc_vis/sigma_lw1_posts.pdf")
-ggplot(all_lw_post, aes(x = repl, y = sigma)) +            
+ggplot(all_lw_post, aes(x = repl, y = sigma, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
@@ -313,7 +313,7 @@ ggplot(all_lw_post, aes(x = repl, y = sigma)) +
 dev.off()
 
 pdf("plots/mcmc_vis/rho_lw1_posts.pdf")
-ggplot(all_lw_post, aes(x = repl, y = rho)) +            
+ggplot(all_lw_post, aes(x = repl, y = rho, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
@@ -324,7 +324,7 @@ dev.off()
 
 # comparing multiple runs of liu-west filter 2
 pdf("plots/mcmc_vis/phi_lw2_posts.pdf")
-ggplot(all_lw2_post, aes(x = repl, y = phi)) +            
+ggplot(all_lw2_post, aes(x = repl, y = phi, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
@@ -332,7 +332,7 @@ ggplot(all_lw2_post, aes(x = repl, y = phi)) +
 dev.off()
 
 pdf("plots/mcmc_vis/mu_lw2_posts.pdf")
-ggplot(all_lw2_post, aes(x = repl, y = mu)) +            
+ggplot(all_lw2_post, aes(x = repl, y = mu, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
@@ -340,7 +340,7 @@ ggplot(all_lw2_post, aes(x = repl, y = mu)) +
 dev.off()
 
 pdf("plots/mcmc_vis/sigma_lw2_posts.pdf")
-ggplot(all_lw2_post, aes(x = repl, y = sigma)) +            
+ggplot(all_lw2_post, aes(x = repl, y = sigma, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
