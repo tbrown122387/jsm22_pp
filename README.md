@@ -55,6 +55,5 @@ You should run this command from the root directory because there are a few file
 
 # Running Everything
 
-Once all the c++ code is built, you can start running everything. Here are some examples for how to do that. NB: you can also run R scripts on a case-by-case basis, but that is discouraged. 
+Once all the c++ code is built, you can start running everything my simply typing `make` in the command line. NB: you can also run R scripts on a case-by-case basis--to do that, follow the examples in `Makefile` (e.g. `Rscript yadayadayada.R`). 
 
-TODO
