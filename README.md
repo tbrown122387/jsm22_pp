@@ -1,5 +1,10 @@
 # Posterior Predictive Distribution Project
 
+
+
+[![DOI](https://zenodo.org/badge/450226450.svg)](https://zenodo.org/badge/latestdoi/450226450)
+
+
 This project is primarily organized into a bunch of `R` scripts that clean data, analyze data, and then plot output. If you'd like to see how these files relate to one another, there is a nice visualization in `file_dep_vis/file_dep_vis.svg`. 
 
 These dependencies are also encoded in the `Makefile`, which is a utility that you should run the code from. There will be some example commands below that will allow you to execute high-level tasks. 
