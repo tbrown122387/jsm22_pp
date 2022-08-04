@@ -634,8 +634,10 @@ public:
     }
 
     ModType instantiate_mod(const psv& untrans_params) {
-        // order: phi, mu, sigma, rho
-        auto param = m_param_sampler.samp();
+        // mcmc samples are stored as phi, mu, sigmaSquared, rho
+        // but we want them as phi, mu, sigma, rho
+        psv param = m_param_sampler.samp();
+        param[2] = std::sqrt( param[2] );
         return ModType(param(0),
                        param(1),
                        param(2),
