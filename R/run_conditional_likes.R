@@ -1,5 +1,4 @@
-# /**
-#   * RUN MODES
+## RUN MODES
 # * 2. Run the Liu-West1 (original auxiliary style) filter for conditional likelihoods (sampling parameters from prior)
 # * 5. Run the Liu-West1 (original auxiliary style) filter for conditional likelihoods (sampling parameters from csv)
 # * 8. Run the Liu-West2 filter for conditional likelihoods (sampling parameters from prior)

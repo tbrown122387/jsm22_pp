@@ -1,3 +1,4 @@
+## Run Modes
 # * 1. Run the Liu-West1 (original auxiliary style) filter for state output (sampling parameters from prior)
 # * 4. Run the Liu-West1 (original auxiliary style) filter for state output (sampling parameters from csv)
 #   * 7. Run the Liu-West2 filter for state output (sampling parameters from prior)
