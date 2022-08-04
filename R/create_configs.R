@@ -1,12 +1,12 @@
 # changes made here will be propogated to many files
-phiLow <- 0.86370
-phiHigh <- 0.96715
-muLow <- -0.365844
-muHigh <- 0.568138
-sigmaLow <- 0.0442228
-sigmaHigh <- 0.2379350
-rhoLow <- -0.963721
-rhoHigh <- -0.514572
+phiLow <- 0.864248
+phiHigh <- 0.972859
+muLow <- -0.390150  
+muHigh <- 0.551337
+sigmaLow <- 0.2021094
+sigmaHigh <- 0.4718427 
+rhoLow <- -0.955950
+rhoHigh <- -0.522117
 dte <- 5
 delta <- .99
 paramSamplesFile <- "data/posterior_samps/param_samples.csv"
@@ -19,6 +19,7 @@ setwd("~/jsm22_pp/data/")
 
 ## check your highs and lows are consistent with the data 
 d <- read.csv("posterior_samps/param_samples.csv", header=F)
+d[,3] <- sqrt(d[,3])
 parEstimates <- colMeans(d[(burn+1):nrow(d),])
 phiGood <- (phiLow < parEstimates[1]) & (parEstimates[1] < phiHigh)
 muGood <- (muLow < parEstimates[2]) & (parEstimates[2] < muHigh)
@@ -27,6 +28,7 @@ rhoGood <- (rhoLow < parEstimates[4]) & (parEstimates[4] < rhoHigh)
 stopifnot(phiGood & muGood & sigmaGood & rhoGood)
 
 # config1.csv
+# for run-modes 1-3, 7-9
 # delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u, dte
 options("scipen"=10)    # set high penalty for scientific display
 myStr <- paste(delta, phiLow, phiHigh, muLow, muHigh, sigmaLow, sigmaHigh, rhoLow, rhoHigh, dte, sep = ", ")

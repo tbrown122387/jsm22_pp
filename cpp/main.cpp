@@ -298,7 +298,7 @@ int main(int argc, char* argv[]){
 
             // instantiate filter object 
             // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u
-            svol_lw_1_par<NUMBOTHPARTS> lw1_noninformative(.99, 0.01, .99, -.3, .3, .001, 10, -.99, -.01, 100); 
+            svol_lw_1_par<NUMBOTHPARTS> lw1_noninformative(.99, 0.01, .99, -5.0, 5.0, .001, 10, -.99, .1, 100); 
                
             // run through the entire training data set
             for( unsigned i = 1; i < train_data.size(); ++i ) 
@@ -317,7 +317,7 @@ int main(int argc, char* argv[]){
             
             // instantiate filter object
             // delta, phi_l, phi_u, mu_l, mu_u, sig_l, sig_u, rho_l, rho_u
-            svol_lw_2_par<NUMBOTHPARTS> lw2_noninformative(.99, 0.01, .99, -.3, .3, .001, 10, -.99, -.01, 100); 
+            svol_lw_2_par<NUMBOTHPARTS> lw2_noninformative(.99, 0.01, .99, -5.0, 5.0, .001, 10, -.99, .1, 100); 
 
             // run through the entire training data set
             for( unsigned i = 1; i < train_data.size(); ++i ) 

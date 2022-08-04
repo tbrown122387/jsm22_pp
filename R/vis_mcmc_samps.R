@@ -93,19 +93,26 @@ burn <- 100
 num_lw_particles <- 500
 
 # 1. read in data sets
+# MCMC samps are stored in phi mu sigmaSquared, rho
+# liu-west samps are stored in phi, mu, sigma, rho
 d <- read.csv("data/posterior_samps/param_samples.csv", header=F)
 d[,3] <- sqrt(d[,3])
-colnames(d) <- c("phi","mu","sigma","rho")
+colnames(d) <- c("phi","mu","sigmaSq","rho")
 d$iter <- 1:nrow(d)
 d <- d[-(1:burn),]
+
+# remember these have sigmas not sigma Squared
 all_lw_post <- read.csv("data/posterior_samps/lw_aux_posterior.txt", header=F, sep = "")
 all_lw2_post <- read.csv("data/posterior_samps/lw2_prior_posterior.txt", header=F, sep = "")
+all_lw_post[,3] <- all_lw_post[,3]^2
+all_lw2_post[,3] <- all_lw2_post[,3]^2
 lw_post <- all_lw_post[1:num_lw_particles,] # take first replication
 lw2_post <- all_lw2_post[1:num_lw_particles,]
-colnames(all_lw2_post) <- c("phi", 'mu', 'sigma','rho')
-colnames(all_lw_post) <- c("phi", 'mu', 'sigma','rho')
-colnames(lw2_post) <- c("phi", 'mu', 'sigma','rho')
-colnames(lw_post) <- c("phi", 'mu', 'sigma','rho')
+
+colnames(all_lw2_post) <- c("phi", 'mu', 'sigmaSq','rho')
+colnames(all_lw_post) <- c("phi", 'mu', 'sigmaSq','rho')
+colnames(lw2_post) <- c("phi", 'mu', 'sigmaSq','rho')
+colnames(lw_post) <- c("phi", 'mu', 'sigmaSq','rho')
 all_lw_post <- rbind(all_lw_post, d[,1:4])
 all_lw2_post <- rbind(all_lw2_post, d[,1:4])
 
@@ -134,8 +141,8 @@ ggplot(d, aes(x=mu)) +
   labs(title='\u03BC Samples', x='\u03BC value')
 dev.off()
 
-pdf("plots/mcmc_vis/sigma_hist.pdf")
-ggplot(d, aes(x=sigma)) + 
+pdf("plots/mcmc_vis/sigmaSq_hist.pdf")
+ggplot(d, aes(x=sigmaSq)) + 
   geom_histogram() + 
   labs(title='\u03C3 Samples', x='\u03C3 value')
 dev.off()
@@ -163,8 +170,8 @@ ggplot(d, aes(x=iter, y=mu)) +
        x='iteration')
 dev.off()
 
-pdf("plots/mcmc_vis/sigma_trace.pdf")
-ggplot(d, aes(x=iter, y=sigma)) +  
+pdf("plots/mcmc_vis/sigmaSq_trace.pdf")
+ggplot(d, aes(x=iter, y=sigmaSq)) +  
   geom_line() +
   labs(title='\u03C3 Trace plot', 
        y='\u03C3 value',
@@ -204,7 +211,7 @@ ggplot(data = acfData,
        x='lag')
 dev.off()
 
-pdf("plots/mcmc_vis/sigma_acf.pdf")
+pdf("plots/mcmc_vis/sigmaSq_acf.pdf")
 acfData <- acf(d[,3], plot=F, lag.max = 100)
 acfData <- data.frame(lag = acfData$lag, acf = acfData$acf)
 ggplot(data = acfData, 
@@ -257,14 +264,14 @@ dev.off()
 
 
 # comparing liu-west posterior to mcmc samps
-pdf("plots/mcmc_vis/sigma_post_comparison.pdf")
-sigma_samps_threeways <- data.frame(samps = c(d[,3], lw_post[,3], lw2_post[,3]))
-sigma_samps_threeways$method = c(
-  rep("mcmc: sigma", nrow(d)),
-  rep("lw: sigma", nrow(lw_post)),
-  rep("lw2: sigma", nrow(lw2_post))
+pdf("plots/mcmc_vis/sigmaSq_post_comparison.pdf")
+sigmaSq_samps_threeways <- data.frame(samps = c(d[,3], lw_post[,3], lw2_post[,3]))
+sigmaSq_samps_threeways$method = c(
+  rep("mcmc: sigmaSq", nrow(d)),
+  rep("lw: sigmaSq", nrow(lw_post)),
+  rep("lw2: sigmaSq", nrow(lw2_post))
 )
-ggplot(sigma_samps_threeways, aes(samps, fill = method)) +
+ggplot(sigmaSq_samps_threeways, aes(samps, fill = method)) +
   geom_histogram(position = "identity", alpha = 0.5,
                  mapping = aes(y = stat(density)))
 dev.off()
@@ -304,8 +311,8 @@ ggplot(all_lw_post, aes(x = repl, y = mu, fill= isMCMC)) +
   )
 dev.off()
 
-pdf("plots/mcmc_vis/sigma_lw1_posts.pdf")
-ggplot(all_lw_post, aes(x = repl, y = sigma, fill= isMCMC)) +            
+pdf("plots/mcmc_vis/sigmaSq_lw1_posts.pdf")
+ggplot(all_lw_post, aes(x = repl, y = sigmaSq, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
@@ -339,8 +346,8 @@ ggplot(all_lw2_post, aes(x = repl, y = mu, fill= isMCMC)) +
   )
 dev.off()
 
-pdf("plots/mcmc_vis/sigma_lw2_posts.pdf")
-ggplot(all_lw2_post, aes(x = repl, y = sigma, fill= isMCMC)) +            
+pdf("plots/mcmc_vis/sigmaSq_lw2_posts.pdf")
+ggplot(all_lw2_post, aes(x = repl, y = sigmaSq, fill= isMCMC)) +            
   geom_boxplot() +
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank() 
