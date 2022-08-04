@@ -246,8 +246,11 @@ FLOATTYPE svol_lw_1_from_csv<NUMPARTS>::logGEv(const osv &yt, const ssv &xt, con
 template<size_t NUMPARTS>
 auto svol_lw_1_from_csv<NUMPARTS>::paramPriorSamp() -> psv
 {
-    // phi, mu, sigma, rho
-    return m_param_sampler.samp();
+    // stored as phi, mu, sigmaSquared, rho
+    // but we want them as phi, mu, sigma, rho
+    psv theta_samp = m_param_sampler.samp();
+    theta_samp[2] = std::sqrt(theta_samp[2]);
+    return theta_samp;
 }
 
 
@@ -502,7 +505,11 @@ FLOATTYPE svol_lw_2_from_csv<NUMPARTS>::logQEv(const ssv &xt, const ssv &xtm1, c
 template<size_t NUMPARTS>
 auto svol_lw_2_from_csv<NUMPARTS>::paramPriorSamp() -> psv
 {
-    return m_param_sampler.samp();
+    // mcmc samples are stored as phi, mu, sigmaSquared, rho
+    // but we want them as phi, mu, sigma, rho
+    psv theta_samp = m_param_sampler.samp();
+    theta_samp[2] = std::sqrt( theta_samp[2] );
+    return theta_samp;
 }
 
 template<size_t NUMPARTS>
@@ -619,7 +626,11 @@ public:
 
     // functions tha twe need to define
     psv samp_untrans_params() override {
-        return m_param_sampler.samp();
+        // mcmc samples are stored as phi, mu, sigmaSquared, rho
+        // but we want them as phi, mu, sigma, rho
+        psv theta_samp = m_param_sampler.samp();
+        theta_samp[2] = std::sqrt( theta_samp[2] );
+        return theta_samp;
     }
 
     ModType instantiate_mod(const psv& untrans_params) {

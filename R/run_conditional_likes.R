@@ -20,7 +20,7 @@ outFiles <- c("lw_aux_prior", "lw_aux_csv", "lw2_prior",
               "lw2_csv", "swarm_prior", "swarm_csv", "pf_est")
 
 
-# run for output
+# run for plot output
 clOutFiles <- paste("data/cond_likes/",outFiles, ".txt", sep ="")
 for(idx in seq_along(runModes)){
   cmd <- paste(prog, runModes[idx], dataPath, '>', clOutFiles[idx])
@@ -28,7 +28,7 @@ for(idx in seq_along(runModes)){
   system(cmd)
 }
 
-# run for timing
+# run for timing output
 timeOutFiles <- paste("data/cond_likes/", outFiles, "_timing.txt", sep ="")
 for(idx in seq_along(runModes)){
   cmd <- paste('{ time', prog, runModes[idx], dataPath, '> /dev/null; } 2>', timeOutFiles[idx])
